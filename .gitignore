@@ -1,0 +1,8 @@
+# !./bin/data/*
+# ./bin*
+*.exe
+*.obj
+*.sdf
+/obj
+/bin/*
+!/bin/data
