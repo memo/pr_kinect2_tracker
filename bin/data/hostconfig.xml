@@ -1,0 +1,4 @@
+<osc_config>
+  <ip_address>192.168.10.100</ip_address>
+  <port>8001</port>
+</osc_config>

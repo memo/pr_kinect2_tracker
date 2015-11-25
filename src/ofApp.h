@@ -8,8 +8,8 @@
 
 #define VIDEO_WIDTH 1920
 #define VIDEO_HEIGHT 1080
-#define VIDEO_OFFSET_X 100
-#define VIDEO_OFFSET_Y 100
+#define VIDEO_OFFSET_X 10
+#define VIDEO_OFFSET_Y 10
 
 
 class ofApp : public ofBaseApp{
@@ -18,6 +18,14 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void getSkelData();
+		void bundleNewUsers();
+		void bundleLostUsers();
+		void bundleCalib();
+		void bundleUserLoc();
+		void bundleRestricted();
+		void bundleHandStates();
+		void bundleLean();
+		void bundleJoints();
 
 		void draw();
 		void drawDepth();
@@ -36,18 +44,27 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		bool			bFullscreen;
-		bool			bShowDepth;
+		bool						bFullscreen;
+		bool						bShowDepth;
 
-		ofxXmlSettings	xmlSettings;
-		string			oscHostname;
-		int				oscPort;
+		ofxXmlSettings				xmlSettings;
+		string						oscHostname;
+		int							oscPort;
 
-		ofxOscSender	oscSkelSender;
+		ofxOscSender				oscSkelSender;
+		ofxOscBundle				oscBundle;
+		map<string, JointType>		jointNames;
 
-		ofxKFW2::Device kinect;
+		ofxKFW2::Device				kinect;
+		vector<ofxKFW2::Data::Body> trackedUsers;
+
 		vector<ofxKFW2::Data::Body> skeletons;
+		vector<ofxKFW2::Data::Body> trackedSkeletons;
+		vector<ofxKFW2::Data::Body> returningUsers;
+		vector<ofxKFW2::Data::Body> newUsers;
+		vector<ofxKFW2::Data::Body> lostUsers;
 
-
+		static bool sortSkelsFunc(ofxKFW2::Data::Body skel1, ofxKFW2::Data::Body skel2) {
+			return (skel1.trackingId < skel2.trackingId); }
 		
 };
