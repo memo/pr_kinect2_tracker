@@ -11,7 +11,6 @@ void ofApp::setup(){
 
 
 	// TODO: read from settings.xml
-	bFullscreen = true;
 	bShowDepth = true;
 	bDrawDebug = true;
 	displayTextAlpha = 100;
@@ -368,8 +367,7 @@ void ofApp::keyPressed(int key){
 	// toggle fullscreen
 	case 'f':
 	case 'F':
-		bFullscreen = !bFullscreen;
-		ofSetFullscreen(bFullscreen);
+		ofToggleFullscreen();
 		break;
 
 	 // toggle between depth stream video and color stream video

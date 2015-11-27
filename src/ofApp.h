@@ -50,7 +50,6 @@ class ofApp : public ofBaseApp{
 		bool						bPause;
 
 		// settings	(TODO: read from settings xml)
-		bool						bFullscreen;
 		bool						bShowDepth;
 		bool						bDrawDebug;
 		int							displayTextAlpha;
