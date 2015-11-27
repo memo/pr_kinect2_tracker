@@ -47,6 +47,8 @@ class ofApp : public ofBaseApp{
 		
 		string toString(const ofxOscMessage &m);
 
+		bool						bPause;
+
 		// settings	(TODO: read from settings xml)
 		bool						bFullscreen;
 		bool						bShowDepth;

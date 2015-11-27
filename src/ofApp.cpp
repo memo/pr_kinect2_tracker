@@ -7,6 +7,8 @@ void ofApp::setup(){
 
 	// basic initialization
 	ofBackground(0);
+	bPause = false;
+
 
 	// TODO: read from settings.xml
 	bFullscreen = true;
@@ -75,12 +77,13 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+	if (!bPause) {
+		// update Kinect2
+		kinect.update();
 
-	// update Kinect2
-	kinect.update();
-
-	// need to process skeletal data for a variety of tasks later
-	getSkelData();
+		// need to process skeletal data for a variety of tasks later
+		getSkelData();
+	}
 
 	// create OSC data bundle
 	oscBundle.clear();
@@ -379,6 +382,11 @@ void ofApp::keyPressed(int key){
 	case 'd':
 	case 'D':
 		bDrawDebug = !bDrawDebug;
+		break;
+
+	case 'p':
+	case 'P':
+		bPause = !bPause;
 		break;
 
 	}
