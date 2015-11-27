@@ -73,6 +73,13 @@ void ofApp::setup(){
 	jointNames["r_ankle"] = JointType_AnkleRight;
 	jointNames["r_foot"] = JointType_FootRight;
 
+	jointNames["c_shoulder"] = JointType_SpineShoulder;
+	jointNames["l_hand_tip"] = JointType_HandTipLeft;
+	jointNames["l_thumb"] = JointType_ThumbLeft;
+	jointNames["r_hand_tip"] = JointType_HandTipRight;
+	jointNames["r_thumb"] = JointType_ThumbRight;
+
+
 	// in order to send osc strings for the handstates
 	handStates[HandState_Unknown] = "unknown";
 	handStates[HandState_NotTracked] = "nottracked";
@@ -296,7 +303,7 @@ void ofApp::bundleJoints()
 			m.addFloatArg(aJoint.getPosition().z);
 
 			// fake confidence value
-			m.addFloatArg(1.0);
+			m.addFloatArg(float(aJoint.getTrackingState())/2.0);
 
 			// add rotation quaternion to message
 			m.addFloatArg(aJoint.getOrientation().x());
@@ -351,19 +358,24 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::drawDepth() {
 	// taken from EW's example
-	kinect.getDepthSource()->draw(OFFSET_X, OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
+	kinect.getDepthSource()->draw(OFFSET_X, OFFSET_Y, displayWidth, displayHeight);
 }
 
 //--------------------------------------------------------------
 void ofApp::drawColor() {
 	// taken from EW's example
-	kinect.getColorSource()->draw(OFFSET_X, OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
+	kinect.getColorSource()->draw(OFFSET_X, OFFSET_Y, displayWidth, displayHeight);
 }
 
 //--------------------------------------------------------------
 void ofApp::drawSkeleton() {
 	// taken from EW's example
-	kinect.getBodySource()->drawProjected(OFFSET_X, OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
+	if (bShowDepth) {
+		kinect.getBodySource()->drawProjected(0, 0, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
+	}
+	else {
+		kinect.getBodySource()->drawProjected(0, 0, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::ColorCamera);
+	}
 }
 
 //--------------------------------------------------------------
@@ -381,6 +393,7 @@ void ofApp::keyPressed(int key){
 	case 'c':
 	case 'C':
 		bShowDepth = !bShowDepth;
+		windowResized(ofGetWidth(), ofGetHeight());
 		break;
 
 	// for debugging
@@ -435,7 +448,38 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-	float ratio = (float(w) - OFFSET_X);
+	// calculate the ratio of width to height for comparison
+	// (taking into account the border)
+	float ratio = (float(w) - 2.0*OFFSET_X)/(float(h) - 2.0*OFFSET_Y);
+
+	if (bShowDepth) {
+		// if the new window is taller than it is wide in relation to
+		// the depth image format
+		if (ratio < float(DEPTH_WIDTH) / float(DEPTH_HEIGHT)) {
+			displayWidth = w - 2.0 * OFFSET_X;
+			displayHeight = float(displayWidth) / DEPTH_WIDTH * DEPTH_HEIGHT;
+		}
+		// if the new window is wider than it is tall in relation to
+		// the depth image format
+		else {
+			displayHeight = h - 2.0 * OFFSET_Y;
+			displayWidth = float(displayHeight) / DEPTH_HEIGHT * DEPTH_WIDTH;
+		}
+	}
+	else {
+		// if the new window is taller than it is wide in relation to
+		// the depth image format
+		if (ratio < float(VIDEO_WIDTH) / float(VIDEO_HEIGHT)) {
+			displayWidth = w - 2.0 * OFFSET_X;
+			displayHeight = float(displayWidth) / VIDEO_WIDTH * VIDEO_HEIGHT;
+		}
+		// if the new window is wider than it is tall in relation to
+		// the depth image format
+		else {
+			displayHeight = h - 2.0 * OFFSET_Y;
+			displayWidth = float(displayHeight) / VIDEO_HEIGHT * VIDEO_WIDTH;
+		}
+	}
 }
 
 //--------------------------------------------------------------
