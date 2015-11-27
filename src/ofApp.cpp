@@ -15,15 +15,16 @@ void ofApp::setup(){
 	displayTextAlpha = 100;
 
 
-	// get values from XML
-	if (!xmlSettings.loadFile("hostconfig.xml")) {
+	// get host config from XML
+	ofxXmlSettings xml;
+	if (!xml.loadFile("hostconfig.xml")) {
 		ofLogNotice("failed to load hostconfig.xml");
 		ofLogNotice("setting ip_address to 192168.10.100");
 		ofLogNotice("setting port to 8001");
 	}
-	xmlSettings.pushTag("osc_config");
-	oscHostname = xmlSettings.getValue("ip_address", "192.168.10.100");
-	oscPort = xmlSettings.getValue("port", 8001);
+	xml.pushTag("osc_config");
+	oscHostname = xml.getValue("ip_address", "192.168.10.100");
+	oscPort = xml.getValue("port", 8001);
 	
 	// initialize OSC sender
 	oscSkelSender.setup(oscHostname, oscPort);

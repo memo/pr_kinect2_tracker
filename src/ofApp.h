@@ -53,7 +53,6 @@ class ofApp : public ofBaseApp{
 		bool						bDrawDebug;
 		int							displayTextAlpha;
 
-		ofxXmlSettings				xmlSettings;
 		string						oscHostname;
 		int							oscPort;
 
