@@ -7,3 +7,4 @@
 /bin/*
 !/bin/data
 *.suo
+*.opensdf
