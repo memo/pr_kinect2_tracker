@@ -327,6 +327,7 @@ void ofApp::draw(){
 	ofPushStyle();
 	ofSetColor(255);
 	ofDrawBitmapString(displayStream.str(), 20, 20);
+	ofPopStyle();
 
 	// overlay the skeletons and hand state bubbles on the video
 	drawSkeleton();
