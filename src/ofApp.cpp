@@ -7,9 +7,13 @@ void ofApp::setup(){
 
 	// basic initialization
 	ofBackground(0);
+
+	// TODO: read from settings.xml
 	bFullscreen = true;
 	bShowDepth = true;
-	bDrawDebug = false;
+	bDrawDebug = true;
+	displayTextAlpha = 100;
+
 
 	// get values from XML
 	if (!xmlSettings.loadFile("hostconfig.xml")) {
@@ -325,7 +329,7 @@ void ofApp::draw(){
 		
 	}
 	ofPushStyle();
-	ofSetColor(255);
+	ofSetColor(255, displayTextAlpha);
 	ofDrawBitmapString(displayStream.str(), 20, 20);
 	ofPopStyle();
 
