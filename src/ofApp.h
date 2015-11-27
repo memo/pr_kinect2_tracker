@@ -8,8 +8,10 @@
 
 #define VIDEO_WIDTH 1920
 #define VIDEO_HEIGHT 1080
-#define VIDEO_OFFSET_X 10
-#define VIDEO_OFFSET_Y 10
+#define DEPTH_WIDTH 512
+#define DEPTH_HEIGHT 424
+#define OFFSET_X 10
+#define OFFSET_Y 10
 #define FRAMERATE 30
 
 
@@ -54,10 +56,14 @@ class ofApp : public ofBaseApp{
 		bool						bDrawDebug;
 		int							displayTextAlpha;
 
+		int							displayWidth;
+		int							displayHeight;
+
 		string						oscHostname;
 		int							oscPort;
 
 		ofxOscSender				oscSkelSender;
+		bool						bOscConnected;
 		ofxOscBundle				oscBundle;
 		map<string, JointType>		jointNames;
 		string						handStates[5];

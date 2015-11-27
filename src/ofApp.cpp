@@ -20,7 +20,7 @@ void ofApp::setup(){
 	ofxXmlSettings xml;
 	if (!xml.loadFile("hostconfig.xml")) {
 		ofLogNotice("failed to load hostconfig.xml");
-		ofLogNotice("setting ip_address to 192168.10.100");
+		ofLogNotice("setting ip_address to 192.168.10.100");
 		ofLogNotice("setting port to 8001");
 	}
 	xml.pushTag("osc_config");
@@ -28,7 +28,14 @@ void ofApp::setup(){
 	oscPort = xml.getValue("port", 8001);
 	
 	// initialize OSC sender
-	oscSkelSender.setup(oscHostname, oscPort);
+	bOscConnected = true;
+	try {
+		oscSkelSender.setup(oscHostname, oscPort);
+	}
+	catch (...) {
+		ofLogError("UNABLE TO CONNECT TO NETWORK");
+		bOscConnected = false;
+	}
 
 	// initialize Kinect2 and all its streams
 	kinect.open();
@@ -97,7 +104,7 @@ void ofApp::update(){
 	bundleJoints();
 
 	// send the bundle
-	oscSkelSender.sendBundle(oscBundle);
+	if (bOscConnected)	oscSkelSender.sendBundle(oscBundle);
 	
 }
 
@@ -344,19 +351,19 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::drawDepth() {
 	// taken from EW's example
-	kinect.getDepthSource()->draw(VIDEO_OFFSET_X, VIDEO_OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
+	kinect.getDepthSource()->draw(OFFSET_X, OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
 }
 
 //--------------------------------------------------------------
 void ofApp::drawColor() {
 	// taken from EW's example
-	kinect.getColorSource()->draw(VIDEO_OFFSET_X, VIDEO_OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
+	kinect.getColorSource()->draw(OFFSET_X, OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
 }
 
 //--------------------------------------------------------------
 void ofApp::drawSkeleton() {
 	// taken from EW's example
-	kinect.getBodySource()->drawProjected(VIDEO_OFFSET_X, VIDEO_OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
+	kinect.getBodySource()->drawProjected(OFFSET_X, OFFSET_Y, VIDEO_WIDTH, VIDEO_HEIGHT);
 }
 
 //--------------------------------------------------------------
@@ -428,7 +435,7 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-
+	float ratio = (float(w) - OFFSET_X);
 }
 
 //--------------------------------------------------------------
