@@ -10,6 +10,7 @@
 #define VIDEO_HEIGHT 1080
 #define VIDEO_OFFSET_X 10
 #define VIDEO_OFFSET_Y 10
+#define FRAMERATE 30
 
 
 class ofApp : public ofBaseApp{
@@ -43,9 +44,12 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+		
+		string toString(const ofxOscMessage &m);
 
 		bool						bFullscreen;
 		bool						bShowDepth;
+		bool						bDrawDebug;
 
 		ofxXmlSettings				xmlSettings;
 		string						oscHostname;
@@ -54,6 +58,7 @@ class ofApp : public ofBaseApp{
 		ofxOscSender				oscSkelSender;
 		ofxOscBundle				oscBundle;
 		map<string, JointType>		jointNames;
+		string						handStates[5];
 
 		ofxKFW2::Device				kinect;
 		vector<ofxKFW2::Data::Body> trackedUsers;

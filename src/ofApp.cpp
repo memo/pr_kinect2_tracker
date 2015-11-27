@@ -3,10 +3,13 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+	ofSetFrameRate(FRAMERATE);
+
 	// basic initialization
 	ofBackground(0);
 	bFullscreen = true;
 	bShowDepth = true;
+	bDrawDebug = false;
 
 	// get values from XML
 	if (!xmlSettings.loadFile("hostconfig.xml")) {
@@ -57,8 +60,12 @@ void ofApp::setup(){
 	jointNames["r_ankle"] = JointType_AnkleRight;
 	jointNames["r_foot"] = JointType_FootRight;
 
-
-	
+	// in order to send osc strings for the handstates
+	handStates[HandState_Unknown] = "unknown";
+	handStates[HandState_NotTracked] = "nottracked";
+	handStates[HandState_Open] = "open";
+	handStates[HandState_Closed] = "closed";
+	handStates[HandState_Lasso] = "lasso";
 }
 
 //--------------------------------------------------------------
@@ -220,12 +227,12 @@ void ofApp::bundleHandStates()
 	for (auto & body : trackedUsers) {
 		ofxOscMessage m;
 		m.setAddress("/handstate/" + ofToString(body.bodyId) + "/left");
-		m.addIntArg(body.leftHandState);
+		m.addStringArg(handStates[body.leftHandState]);
 		m.addFloatArg(body.leftHandConfidence);
 
 		ofxOscMessage n;
 		n.setAddress("/handstate/" + ofToString(body.bodyId) + "/right");
-		n.addIntArg(body.rightHandState);
+		n.addStringArg(handStates[body.rightHandState]);
 		n.addFloatArg(body.rightHandConfidence);
 
 		
@@ -261,7 +268,7 @@ void ofApp::bundleJoints()
 	//							vx vy vz speed
 	for (auto & body : trackedUsers) {
 		
-		auto velContainer = body.getJointVels(ofGetLastFrameTime());
+		auto velContainer = body.getJointVels(1.0/FRAMERATE);
 
 		// step through all desired joints
 		for (map<string, JointType>::iterator it = jointNames.begin(); it != jointNames.end(); it++) {
@@ -305,6 +312,21 @@ void ofApp::draw(){
 	else {
 		drawColor();
 	}
+
+	stringstream displayStream;
+	displayStream << "fps: " + ofToString(ofGetFrameRate(), 2) << endl;
+
+	if (bDrawDebug) {
+		for (int i = 0; i < oscBundle.getMessageCount(); i++) {
+			ofxOscMessage tempMessage = oscBundle.getMessageAt(i);
+			displayStream << toString(tempMessage);
+			displayStream << endl;
+		}
+		
+	}
+	ofPushStyle();
+	ofSetColor(255);
+	ofDrawBitmapString(displayStream.str(), 20, 20);
 
 	// overlay the skeletons and hand state bubbles on the video
 	drawSkeleton();
@@ -350,8 +372,7 @@ void ofApp::keyPressed(int key){
 	// for debugging
 	case 'd':
 	case 'D':
-		int tempInt;
-		tempInt = 0;
+		bDrawDebug = !bDrawDebug;
 		break;
 
 	}
@@ -406,4 +427,31 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+//--------------------------------------------------------------
+string ofApp::toString(const ofxOscMessage &m) {
+	ostringstream msg_string;
+
+	msg_string << m.getAddress() << " ";
+	//        msg_string << " | ";
+	for (int i = 0; i < m.getNumArgs(); i++) {
+		// get the argument type
+		msg_string << m.getArgTypeName(i);
+		msg_string << ":";
+		// display the argument - make sure we get the right type
+		if (m.getArgType(i) == OFXOSC_TYPE_INT32) {
+			msg_string << m.getArgAsInt32(i) << " ";
+		}
+		else if (m.getArgType(i) == OFXOSC_TYPE_FLOAT) {
+			msg_string << m.getArgAsFloat(i) << " ";
+		}
+		else if (m.getArgType(i) == OFXOSC_TYPE_STRING) {
+			msg_string << m.getArgAsString(i) << " ";
+		}
+		else {
+			msg_string << "unknown ";
+		}
+	}
+	return msg_string.str();
 }
