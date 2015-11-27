@@ -449,7 +449,8 @@ string ofApp::toString(const ofxOscMessage &m) {
 	//        msg_string << " | ";
 	for (int i = 0; i < m.getNumArgs(); i++) {
 		// get the argument type
-		msg_string << m.getArgTypeName(i);
+		//msg_string << m.getArgTypeName(i);
+		msg_string << "[" << i << "]";
 		msg_string << ":";
 		// display the argument - make sure we get the right type
 		if (m.getArgType(i) == OFXOSC_TYPE_INT32) {
