@@ -81,6 +81,9 @@ class ofApp : public ofBaseApp{
 		vector<ofxKFW2::Data::Body> newUsers;
 		vector<ofxKFW2::Data::Body> lostUsers;
 
+		ofShortPixels				depthPixelsCopy;
+		ofTexture					depthTexture;
+
 		static bool sortSkelsFunc(const ofxKFW2::Data::Body &skel1, const ofxKFW2::Data::Body &skel2) {
 			return (skel1.trackingId < skel2.trackingId); }
 		

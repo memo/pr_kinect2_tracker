@@ -76,7 +76,7 @@ void ofApp::loadDisplayXml() {
 		ofLogNotice("setting bShowDepth to TRUE");
 		ofLogNotice("setting bDrawDebug to TRUE");
 		ofLogNotice("setting displayTextAlpha to 100");
-		ofLogNotice("setting depthGain to 5");
+		ofLogNotice("setting depthGain to 20");
 	}
 
 	// set boolean values
@@ -84,7 +84,7 @@ void ofApp::loadDisplayXml() {
 	bShowDepth = settings.getValue("bShowDepth", true);
 	bDrawDebug = settings.getValue("bDrawDebug", true);
 	displayTextAlpha = settings.getValue("displayTextAlpha", 100);
-	depthGain = settings.getValue("depthGain", 5);
+	depthGain = settings.getValue("depthGain", 20);
 }
 
 //--------------------------------------------------------------
@@ -382,17 +382,17 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::drawDepth() {
 	// taken from EW's example
-	auto & tempPixels = kinect.getDepthSource()->getPixels();
-	auto tempPixelsIt = kinect.getDepthSource()->getPixels().getPixels();
-	for (int i = 0; i < tempPixels.getHeight(); i++) {
-		for (int j = 0; j < tempPixels.getWidth(); j++) {
-			*(tempPixelsIt + i*tempPixels.getWidth() + j) *= depthGain;
-		}
+	depthPixelsCopy.setFromPixels(kinect.getDepthSource()->getPixels(), DEPTH_WIDTH, DEPTH_HEIGHT, OF_IMAGE_GRAYSCALE);
+	auto tempPixelsIt = depthPixelsCopy.begin();
+	for (int i = 0; tempPixelsIt + i < depthPixelsCopy.end(); i++) {
+		*(tempPixelsIt + i) *= depthGain;
+		*(tempPixelsIt + i) = USHRT_MAX - *(tempPixelsIt + i);
 	}
-	kinect.getDepthSource()->getTexture().loadData(tempPixels);
-	kinect.getDepthSource()->draw(OFFSET_X, OFFSET_Y, displayWidth, displayHeight);
+	
+	depthTexture.loadData(depthPixelsCopy);
+	depthTexture.draw(OFFSET_X, OFFSET_Y, displayWidth, displayHeight);
 
-	}
+}
 
 //--------------------------------------------------------------
 void ofApp::drawColor() {
