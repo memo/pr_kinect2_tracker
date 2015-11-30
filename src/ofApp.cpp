@@ -77,6 +77,7 @@ void ofApp::loadDisplayXml() {
 		ofLogNotice("setting bDrawDebug to TRUE");
 		ofLogNotice("setting displayTextAlpha to 100");
 		ofLogNotice("setting depthGain to 20");
+		ofLogNotice("setting depthGain to TRUE");
 	}
 
 	// set boolean values
@@ -85,6 +86,7 @@ void ofApp::loadDisplayXml() {
 	bDrawDebug = settings.getValue("bDrawDebug", true);
 	displayTextAlpha = settings.getValue("displayTextAlpha", 100);
 	depthGain = settings.getValue("depthGain", 20);
+	bDepthInvert = settings.getValue("bDepthInvert", true);
 }
 
 //--------------------------------------------------------------
@@ -385,8 +387,10 @@ void ofApp::drawDepth() {
 	depthPixelsCopy.setFromPixels(kinect.getDepthSource()->getPixels(), DEPTH_WIDTH, DEPTH_HEIGHT, OF_IMAGE_GRAYSCALE);
 	auto tempPixelsIt = depthPixelsCopy.begin();
 	for (int i = 0; tempPixelsIt + i < depthPixelsCopy.end(); i++) {
-		*(tempPixelsIt + i) *= depthGain;
-		*(tempPixelsIt + i) = USHRT_MAX - *(tempPixelsIt + i);
+		if (tempPixelsIt[i] > 0) {	// if not undefined...
+			tempPixelsIt[i] = depthGain * tempPixelsIt[i];
+			if (bDepthInvert) tempPixelsIt[i] = USHRT_MAX - tempPixelsIt[i];	// invert (white is close, black is far)
+		}
 	}
 	
 	depthTexture.loadData(depthPixelsCopy);

@@ -54,15 +54,17 @@ class ofApp : public ofBaseApp{
 
 		bool						bPause;
 
-		// settings	(TODO: read from settings xml)
+		// settings
 		bool						bShowDepth;
 		bool						bDrawDebug;
 		int							displayTextAlpha;
+		float						depthGain;
+		bool						bDepthInvert;
+
 
 		int							displayWidth;
 		int							displayHeight;
-		float						depthGain;
-
+		
 		string						oscHostname;
 		int							oscPort;
 
