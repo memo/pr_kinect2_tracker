@@ -9,33 +9,11 @@ void ofApp::setup(){
 	ofBackground(0);
 	bPause = false;
 
+	// get display settings from XML
+	loadDisplayXml();
 
-	// TODO: read from settings.xml
-	bShowDepth = true;
-	bDrawDebug = true;
-	displayTextAlpha = 100;
-
-
-	// get host config from XML
-	ofxXmlSettings xml;
-	if (!xml.loadFile("hostconfig.xml")) {
-		ofLogNotice("failed to load hostconfig.xml");
-		ofLogNotice("setting ip_address to 192.168.10.100");
-		ofLogNotice("setting port to 8001");
-	}
-	xml.pushTag("osc_config");
-	oscHostname = xml.getValue("ip_address", "192.168.10.100");
-	oscPort = xml.getValue("port", 8001);
-	
-	// initialize OSC sender
-	bOscConnected = true;
-	try {
-		oscSkelSender.setup(oscHostname, oscPort);
-	}
-	catch (...) {
-		ofLogError("UNABLE TO CONNECT TO NETWORK");
-		bOscConnected = false;
-	}
+	// get host config from XML and init OSC
+	loadInitOsc();
 
 	// initialize Kinect2 and all its streams
 	kinect.open();
@@ -86,6 +64,52 @@ void ofApp::setup(){
 	handStates[HandState_Open] = "open";
 	handStates[HandState_Closed] = "closed";
 	handStates[HandState_Lasso] = "lasso";
+}
+
+//--------------------------------------------------------------
+void ofApp::loadDisplayXml() {
+
+	// load settings from settings.xml
+	ofxXmlSettings settings;
+	if (!settings.loadFile("settings.xml")) {
+		ofLogNotice("failed to load settings.xml");
+		ofLogNotice("setting bShowDepth to TRUE");
+		ofLogNotice("setting bDrawDebug to TRUE");
+		ofLogNotice("setting displayTextAlpha to 100");
+		ofLogNotice("setting depthGain to 5");
+	}
+
+	// set boolean values
+	settings.pushTag("display_config");
+	bShowDepth = settings.getValue("bShowDepth", true);
+	bDrawDebug = settings.getValue("bDrawDebug", true);
+	displayTextAlpha = settings.getValue("displayTextAlpha", 100);
+	depthGain = settings.getValue("depthGain", 5);
+}
+
+//--------------------------------------------------------------
+void ofApp::loadInitOsc() {
+
+	// load settings from hostconfig.xml
+	ofxXmlSettings oscXml;
+	if (!oscXml.loadFile("hostconfig.xml")) {
+		ofLogNotice("failed to load hostconfig.xml");
+		ofLogNotice("setting ip_address to 192.168.10.100");
+		ofLogNotice("setting port to 8001");
+	}
+	oscXml.pushTag("osc_config");
+	oscHostname = oscXml.getValue("ip_address", "192.168.10.100");
+	oscPort = oscXml.getValue("port", 8001);
+
+	// initialize OSC sender
+	bOscConnected = true;
+	try {
+		oscSkelSender.setup(oscHostname, oscPort);
+	}
+	catch (...) {
+		ofLogError("UNABLE TO CONNECT TO NETWORK");
+		bOscConnected = false;
+	}
 }
 
 //--------------------------------------------------------------
@@ -358,8 +382,17 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::drawDepth() {
 	// taken from EW's example
+	auto & tempPixels = kinect.getDepthSource()->getPixels();
+	auto tempPixelsIt = kinect.getDepthSource()->getPixels().getPixels();
+	for (int i = 0; i < tempPixels.getHeight(); i++) {
+		for (int j = 0; j < tempPixels.getWidth(); j++) {
+			*(tempPixelsIt + i*tempPixels.getWidth() + j) *= depthGain;
+		}
+	}
+	kinect.getDepthSource()->getTexture().loadData(tempPixels);
 	kinect.getDepthSource()->draw(OFFSET_X, OFFSET_Y, displayWidth, displayHeight);
-}
+
+	}
 
 //--------------------------------------------------------------
 void ofApp::drawColor() {
@@ -407,6 +440,15 @@ void ofApp::keyPressed(int key){
 		bPause = !bPause;
 		break;
 
+	case 'l':
+	case 'L':
+		loadDisplayXml();
+		break;
+
+	case 'o':
+	case 'O':
+		loadInitOsc();
+		break;
 	}
 
 }

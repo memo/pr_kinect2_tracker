@@ -19,6 +19,9 @@ class ofApp : public ofBaseApp{
 
 	public:
 		void setup();
+		void loadDisplayXml();
+		void loadInitOsc();
+
 		void update();
 		void getSkelData();
 		void bundleNewUsers();
@@ -58,6 +61,7 @@ class ofApp : public ofBaseApp{
 
 		int							displayWidth;
 		int							displayHeight;
+		float						depthGain;
 
 		string						oscHostname;
 		int							oscPort;
