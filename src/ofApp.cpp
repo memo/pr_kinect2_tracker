@@ -444,6 +444,11 @@ void ofApp::keyPressed(int key){
 		bPause = !bPause;
 		break;
 
+	case 'i':
+	case 'I':
+		bDepthInvert = !bDepthInvert;
+		break;
+
 	case 'l':
 	case 'L':
 		loadDisplayXml();
