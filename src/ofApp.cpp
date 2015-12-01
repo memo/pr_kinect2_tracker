@@ -362,6 +362,9 @@ void ofApp::draw(){
 		drawColor();
 	}
 
+	// overlay the skeletons and hand state bubbles on the video
+	drawSkeleton();
+
 	stringstream displayStream;
 	displayStream << "fps: " + ofToString(ofGetFrameRate(), 2) << endl;
 
@@ -377,10 +380,6 @@ void ofApp::draw(){
 	ofSetColor(255, displayTextAlpha);
 	ofDrawBitmapString(displayStream.str(), 20, 20);
 	ofPopStyle();
-
-	// overlay the skeletons and hand state bubbles on the video
-	drawSkeleton();
-
 }
 
 //--------------------------------------------------------------
