@@ -64,6 +64,8 @@ void ofApp::setup(){
 	handStates[HandState_Open] = "open";
 	handStates[HandState_Closed] = "closed";
 	handStates[HandState_Lasso] = "lasso";
+
+	windowResized(ofGetWidth(), ofGetHeight());
 }
 
 //--------------------------------------------------------------
