@@ -2,6 +2,6 @@
   <bShowDepth>1</bShowDepth>
   <bDrawDebug>0</bDrawDebug>
   <displayTextAlpha>255</displayTextAlpha>
-  <depthGain>10</depthGain>
+  <depthGain>17</depthGain>
   <bDepthInvert>1</bDepthInvert>
 </display_config>

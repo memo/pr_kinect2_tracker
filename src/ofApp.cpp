@@ -409,10 +409,10 @@ void ofApp::drawColor() {
 void ofApp::drawSkeleton() {
 	// taken from EW's example
 	if (bShowDepth) {
-		kinect.getBodySource()->drawProjected(0, 0, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
+		kinect.getBodySource()->drawProjected(OFFSET_X, OFFSET_Y, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
 	}
 	else {
-		kinect.getBodySource()->drawProjected(0, 0, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::ColorCamera);
+		kinect.getBodySource()->drawProjected(OFFSET_X, OFFSET_Y, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::ColorCamera);
 	}
 }
 
