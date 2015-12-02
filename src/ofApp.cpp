@@ -9,6 +9,11 @@ void ofApp::setup(){
 	ofBackground(0);
 	bPause = false;
 
+	// sets window to the size of the screen and positions it in the
+	// upper left-hand corner
+	ofSetWindowShape(ofGetScreenWidth(), ofGetScreenHeight());
+	ofSetWindowPosition(10, 40);
+
 	// get display settings from XML
 	loadDisplayXml();
 
