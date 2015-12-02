@@ -369,6 +369,7 @@ void ofApp::draw(){
 	drawSkeleton();
 
 	stringstream displayStream;
+	displayStream << "version #" + ofToString(VERSION_NUM) << endl;
 	displayStream << "fps: " + ofToString(ofGetFrameRate(), 2) << endl;
 
 	if (bDrawDebug) {
