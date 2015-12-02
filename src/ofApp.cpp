@@ -89,6 +89,9 @@ void ofApp::loadDisplayXml() {
 	displayTextAlpha = settings.getValue("displayTextAlpha", 100);
 	depthGain = settings.getValue("depthGain", 20);
 	bDepthInvert = settings.getValue("bDepthInvert", true);
+	if (settings.getValue("bStartFullscreen", true)) {
+		ofToggleFullscreen();
+	}
 }
 
 //--------------------------------------------------------------
