@@ -34,6 +34,7 @@ class ofApp : public ofBaseApp{
 		void bundleHandStates();
 		void bundleLean();
 		void bundleJoints();
+		void bundleFloor();
 
 		void draw();
 		void drawDepth();
@@ -62,6 +63,8 @@ class ofApp : public ofBaseApp{
 		int							displayTextAlpha;
 		float						depthGain;
 		bool						bDepthInvert;
+		bool						bDrawFloor;
+		ofVec4f						floorCoord;
 
 
 		int							displayWidth;

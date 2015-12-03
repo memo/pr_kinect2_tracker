@@ -4,5 +4,6 @@
   <displayTextAlpha>255</displayTextAlpha>
   <depthGain>17</depthGain>
   <bDepthInvert>1</bDepthInvert>
+  <bDrawFloor>1</bDrawFloor>
   <bStartFullscreen>0</bStartFullscreen>
 </display_config>

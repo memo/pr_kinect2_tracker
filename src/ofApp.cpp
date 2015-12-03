@@ -94,6 +94,7 @@ void ofApp::loadDisplayXml() {
 	displayTextAlpha = settings.getValue("displayTextAlpha", 100);
 	depthGain = settings.getValue("depthGain", 20);
 	bDepthInvert = settings.getValue("bDepthInvert", true);
+	bDrawFloor = settings.getValue("bDrawFloor", false);
 	if (settings.getValue("bStartFullscreen", true)) {
 		ofToggleFullscreen();
 	}
@@ -145,6 +146,7 @@ void ofApp::update(){
 	bundleHandStates();
 	bundleLean();
 	bundleJoints();
+	bundleFloor();
 
 	// send the bundle
 	if (bOscConnected)	oscSkelSender.sendBundle(oscBundle);
@@ -191,6 +193,9 @@ void ofApp::getSkelData()
 		back_inserter(lostUsers), &ofApp::sortSkelsFunc);
 
 	trackedUsers = trackedSkeletons;
+
+	auto & tempFloor = kinect.getBodySource()->getFloorClipPlane();
+	floorCoord.set(tempFloor.x, tempFloor.y, tempFloor.z, tempFloor.w);
 
 }
 
@@ -360,6 +365,20 @@ void ofApp::bundleJoints()
 }
 
 //--------------------------------------------------------------
+void ofApp::bundleFloor() {
+	// create floor plane message
+	// /floorplane	x y z w
+	ofxOscMessage m;
+	m.setAddress("/floorplane");
+	m.addFloatArg(floorCoord.x);
+	m.addFloatArg(floorCoord.y);
+	m.addFloatArg(floorCoord.z);
+	m.addFloatArg(floorCoord.w);
+
+	oscBundle.addMessage(m);
+}
+
+//--------------------------------------------------------------
 void ofApp::draw(){
 
 	// draw either the depth image or the color image
@@ -369,6 +388,10 @@ void ofApp::draw(){
 	else {
 		drawColor();
 	}
+
+	//if (bDrawFloor) {
+	//	ofPlanePrimitive(10, 10, 10, 10);
+	//}
 
 	// overlay the skeletons and hand state bubbles on the video
 	drawSkeleton();
