@@ -6,7 +6,7 @@
 #include "ofxKinectForWindows2.h"
 #include "ofxOsc.h"
 
-#define VERSION_NUM 1
+
 
 #define VIDEO_WIDTH 1920
 #define VIDEO_HEIGHT 1080

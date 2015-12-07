@@ -1,5 +1,7 @@
 #include "ofApp.h"
 
+#define VERSION_NUM 3
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 
