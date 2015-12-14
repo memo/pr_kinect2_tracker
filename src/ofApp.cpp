@@ -435,24 +435,24 @@ void ofApp::drawDepth() {
 	}
 	
 	depthTexture.loadData(depthPixelsCopy);
-	depthTexture.draw(OFFSET_X, OFFSET_Y, displayWidth, displayHeight);
+	depthTexture.draw(displayOffset.x, displayOffset.y, displayWidth, displayHeight);
 
 }
 
 //--------------------------------------------------------------
 void ofApp::drawColor() {
 	// taken from EW's example
-	kinect.getColorSource()->draw(OFFSET_X, OFFSET_Y, displayWidth, displayHeight);
+	kinect.getColorSource()->draw(displayOffset.x, displayOffset.y, displayWidth, displayHeight);
 }
 
 //--------------------------------------------------------------
 void ofApp::drawSkeleton() {
 	// taken from EW's example
 	if (bShowDepth) {
-		kinect.getBodySource()->drawProjected(OFFSET_X, OFFSET_Y, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
+		kinect.getBodySource()->drawProjected(displayOffset.x, displayOffset.y, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::DepthCamera);
 	}
 	else {
-		kinect.getBodySource()->drawProjected(OFFSET_X, OFFSET_Y, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::ColorCamera);
+		kinect.getBodySource()->drawProjected(displayOffset.x, displayOffset.y, displayWidth, displayHeight, ofxKFW2::ProjectionCoordinates::ColorCamera);
 	}
 }
 
@@ -550,12 +550,16 @@ void ofApp::windowResized(int w, int h){
 		if (ratio < float(DEPTH_WIDTH) / float(DEPTH_HEIGHT)) {
 			displayWidth = w - 2.0 * OFFSET_X;
 			displayHeight = float(displayWidth) / DEPTH_WIDTH * DEPTH_HEIGHT;
+			displayOffset.x = (w - displayWidth) * 0.5;
+			displayOffset.y = OFFSET_Y;
 		}
 		// if the new window is wider than it is tall in relation to
 		// the depth image format
 		else {
 			displayHeight = h - 2.0 * OFFSET_Y;
 			displayWidth = float(displayHeight) / DEPTH_HEIGHT * DEPTH_WIDTH;
+			displayOffset.x = OFFSET_X;
+			displayOffset.y = (h - displayHeight) * 0.5;
 		}
 	}
 	else {
@@ -564,12 +568,16 @@ void ofApp::windowResized(int w, int h){
 		if (ratio < float(VIDEO_WIDTH) / float(VIDEO_HEIGHT)) {
 			displayWidth = w - 2.0 * OFFSET_X;
 			displayHeight = float(displayWidth) / VIDEO_WIDTH * VIDEO_HEIGHT;
+			displayOffset.x = (w - displayWidth) * 0.5;
+			displayOffset.y = OFFSET_Y;
 		}
 		// if the new window is wider than it is tall in relation to
 		// the depth image format
 		else {
 			displayHeight = h - 2.0 * OFFSET_Y;
 			displayWidth = float(displayHeight) / VIDEO_HEIGHT * VIDEO_WIDTH;
+			displayOffset.x = OFFSET_X;
+			displayOffset.y = (h - displayHeight) * 0.5;
 		}
 	}
 }

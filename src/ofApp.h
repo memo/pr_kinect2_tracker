@@ -69,6 +69,7 @@ class ofApp : public ofBaseApp{
 		ofVec4f						floorCoord;
 
 
+		ofVec2f						displayOffset;
 		int							displayWidth;
 		int							displayHeight;
 		
