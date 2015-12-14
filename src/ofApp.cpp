@@ -1,6 +1,6 @@
 #include "ofApp.h"
 
-#define VERSION_NUM 3
+#define VERSION_NUM 4
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -84,7 +84,9 @@ void ofApp::loadDisplayXml() {
 		ofLogNotice("failed to load settings.xml");
 		ofLogNotice("setting bShowDepth to TRUE");
 		ofLogNotice("setting bDrawDebug to TRUE");
-		ofLogNotice("setting displayTextAlpha to 100");
+		ofLogNotice("setting displayTextAlpha to 255");
+		ofLogNotice("setting displayVideoAlpha to 255");
+		ofLogNotice("setting displayDepthAlpha to 255");
 		ofLogNotice("setting depthGain to 20");
 		ofLogNotice("setting depthGain to TRUE");
 	}
@@ -93,7 +95,9 @@ void ofApp::loadDisplayXml() {
 	settings.pushTag("display_config");
 	bShowDepth = settings.getValue("bShowDepth", true);
 	bDrawDebug = settings.getValue("bDrawDebug", true);
-	displayTextAlpha = settings.getValue("displayTextAlpha", 100);
+	displayTextAlpha = settings.getValue("displayTextAlpha", 255);
+	displayVideoAlpha = settings.getValue("displayVideoAlpha", 255);
+	displayDepthAlpha = settings.getValue("displayDepthAlpha", 255);
 	depthGain = settings.getValue("depthGain", 20);
 	bDepthInvert = settings.getValue("bDepthInvert", true);
 	bDrawFloor = settings.getValue("bDrawFloor", false);
@@ -385,9 +389,11 @@ void ofApp::draw(){
 
 	// draw either the depth image or the color image
 	if (bShowDepth) {
+		ofSetColor(displayDepthAlpha);
 		drawDepth();
 	}
 	else {
+		ofSetColor(displayVideoAlpha);
 		drawColor();
 	}
 
@@ -399,7 +405,7 @@ void ofApp::draw(){
 	drawSkeleton();
 
 	stringstream displayStream;
-	displayStream << "version #" + ofToString(VERSION_NUM) << endl;
+	displayStream << "version v" + ofToString(VERSION_NUM) << endl;
 	displayStream << "fps: " + ofToString(ofGetFrameRate(), 2) << endl;
 
 	if (bDrawDebug) {

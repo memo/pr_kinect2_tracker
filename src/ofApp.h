@@ -61,6 +61,8 @@ class ofApp : public ofBaseApp{
 		bool						bShowDepth;
 		bool						bDrawDebug;
 		int							displayTextAlpha;
+		int							displayDepthAlpha;
+		int							displayVideoAlpha;
 		float						depthGain;
 		bool						bDepthInvert;
 		bool						bDrawFloor;

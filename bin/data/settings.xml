@@ -1,8 +1,10 @@
 <display_config>
-  <bShowDepth>0</bShowDepth>
+  <bShowDepth>1</bShowDepth>
   <bDrawDebug>0</bDrawDebug>
   <displayTextAlpha>255</displayTextAlpha>
-  <depthGain>17</depthGain>
+  <displayVideoAlpha>255</displayVideoAlpha>
+  <displayDepthAlpha>100</displayDepthAlpha>  
+  <depthGain>10</depthGain>
   <bDepthInvert>1</bDepthInvert>
   <bDrawFloor>1</bDrawFloor>
   <bStartFullscreen>0</bStartFullscreen>
