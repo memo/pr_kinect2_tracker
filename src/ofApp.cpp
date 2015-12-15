@@ -1,6 +1,6 @@
 #include "ofApp.h"
 
-#define VERSION_NUM 4
+#define VERSION_NUM 6
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -550,16 +550,16 @@ void ofApp::windowResized(int w, int h){
 		if (ratio < float(DEPTH_WIDTH) / float(DEPTH_HEIGHT)) {
 			displayWidth = w - 2.0 * OFFSET_X;
 			displayHeight = float(displayWidth) / DEPTH_WIDTH * DEPTH_HEIGHT;
-			displayOffset.x = (w - displayWidth) * 0.5;
-			displayOffset.y = OFFSET_Y;
+			displayOffset.x = OFFSET_X;
+			displayOffset.y = (h - displayHeight) * 0.5;
 		}
 		// if the new window is wider than it is tall in relation to
 		// the depth image format
 		else {
 			displayHeight = h - 2.0 * OFFSET_Y;
 			displayWidth = float(displayHeight) / DEPTH_HEIGHT * DEPTH_WIDTH;
-			displayOffset.x = OFFSET_X;
-			displayOffset.y = (h - displayHeight) * 0.5;
+			displayOffset.x = (w - displayWidth) * 0.5;
+			displayOffset.y = OFFSET_Y;
 		}
 	}
 	else {
@@ -568,16 +568,16 @@ void ofApp::windowResized(int w, int h){
 		if (ratio < float(VIDEO_WIDTH) / float(VIDEO_HEIGHT)) {
 			displayWidth = w - 2.0 * OFFSET_X;
 			displayHeight = float(displayWidth) / VIDEO_WIDTH * VIDEO_HEIGHT;
-			displayOffset.x = (w - displayWidth) * 0.5;
-			displayOffset.y = OFFSET_Y;
+			displayOffset.x = OFFSET_X;
+			displayOffset.y = (h - displayHeight) * 0.5;
 		}
 		// if the new window is wider than it is tall in relation to
 		// the depth image format
 		else {
 			displayHeight = h - 2.0 * OFFSET_Y;
 			displayWidth = float(displayHeight) / VIDEO_HEIGHT * VIDEO_WIDTH;
-			displayOffset.x = OFFSET_X;
-			displayOffset.y = (h - displayHeight) * 0.5;
+			displayOffset.x = (w - displayWidth) * 0.5;
+			displayOffset.y = OFFSET_Y;
 		}
 	}
 }
