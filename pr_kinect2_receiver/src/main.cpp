@@ -25,7 +25,23 @@ class ofApp : public ofBaseApp {
     ofxImGui gui;
 
     // osc
-    pr::OscSender oscSender;
+    pr::OscSender osc_sender;
+
+    // display params
+    struct {
+        bool show_floor = true;
+        float floor_size = 12;
+        bool show_all_persons = true;
+        bool show_reduced_persons = true;
+        float joint_radius = 0.2;
+        bool show_target_pos = false;
+        bool show_springy_pos = false;
+        bool show_vel = false;
+        float vel_mult = 1.0;
+
+    } display;
+
+    ofEasyCam cam;
 
 
     //--------------------------------------------------------------
@@ -44,6 +60,9 @@ class ofApp : public ofBaseApp {
 
 
         loadFromXml(kXmlFilename);
+
+        cam.setPosition(0, 1.5, -5);
+        cam.lookAt(ofVec3f(0, 1.5, -4), ofVec3f(0, 1, 0));
     }
 
 
@@ -59,16 +78,16 @@ class ofApp : public ofBaseApp {
             else ofLogError() << "App::loadFromXml receiver == NULL";
         }
 
-        oscSender.loadFromXml(xml);
+        osc_sender.loadFromXml(xml);
 
-        // also load other settings
-        //        float Receiver::posSmoothing = 0.5;
-        //        float Receiver::velSmoothing = 0.96;
-        //        float Receiver::springStrength = 0.02;
-        //        float Receiver::springDamping = 0.05;
-        //        int Receiver::killFrameCount = 10;      // kill person afer this many frames of not receiving
-
-
+        // TODO: load other settings
+        //        Receiver::posSmoothing
+        //        Receiver::velSmoothing
+        //        Receiver::springStrength
+        //        Receiver::springDamping
+        //        Receiver::killFrameCount
+        //        display params
+        //        anything else?
     }
 
 
@@ -84,17 +103,16 @@ class ofApp : public ofBaseApp {
             else ofLogError() << "App::saveToXml receiver == NULL";
         }
 
-        oscSender.saveToXml(xml);
+        osc_sender.saveToXml(xml);
 
-        // also write other settings to xml
-        //        float Receiver::posSmoothing = 0.5;
-        //        float Receiver::velSmoothing = 0.96;
-        //        float Receiver::springStrength = 0.02;
-        //        float Receiver::springDamping = 0.05;
-        //        int Receiver::killFrameCount = 10;      // kill person afer this many frames of not receiving
-
-        //        hostIp;
-        //        hostPort;
+        // TODO: also write other settings to xml
+        //        Receiver::posSmoothing
+        //        Receiver::velSmoothing
+        //        Receiver::springStrength
+        //        Receiver::springDamping
+        //        Receiver::killFrameCount
+        //        display params
+        //        anything else?
 
         // save xml
         xml.save(filename);
@@ -114,32 +132,37 @@ class ofApp : public ofBaseApp {
             else ofLogError() << "App::update receiver == NULL";
         }
 
+        // if at least one person
+        if(persons_global_all.size() > 1) {
+            // sort global list
+            std::sort(persons_global_all.begin(), persons_global_all.end(), pr::Person::compare);
 
-        // sort global list
-        std::sort(persons_global_all.begin(), persons_global_all.end(), pr::Person::compare);
+            // calculate average person (allocate first if nessecary)
+            if(!persons_global_reduced[kPersonAvg]) persons_global_reduced[kPersonAvg] = make_shared<pr::Person>();
 
-
-        // calculate average person (allocate first if nessecary)
-        if(!persons_global_reduced[kPersonAvg]) persons_global_reduced[kPersonAvg] = make_shared<pr::Person>();
-
-        if(persons_global_reduced[kPersonAvg] && persons_global_reduced[kPersonLeft] && persons_global_reduced[kPersonRight]) {
-            for(auto&& jkv : persons_global_reduced[kPersonAvg]->joints) {
-                pr::JointInfo& joint = jkv.second;
-                string jointName = jkv.first;
-                joint.confidence    = (persons_global_reduced[kPersonLeft]->joints[jointName].confidence  + persons_global_reduced[kPersonRight]->joints[jointName].confidence)/2;
-                joint.pos.current   = (persons_global_reduced[kPersonLeft]->joints[jointName].pos.current + persons_global_reduced[kPersonRight]->joints[jointName].pos.current)/2;
-                joint.quat          = (persons_global_reduced[kPersonLeft]->joints[jointName].quat        + persons_global_reduced[kPersonRight]->joints[jointName].quat)/2;
-                joint.euler         = (persons_global_reduced[kPersonLeft]->joints[jointName].euler       + persons_global_reduced[kPersonRight]->joints[jointName].euler)/2;
-                joint.vel.current   = (persons_global_reduced[kPersonLeft]->joints[jointName].vel.current + persons_global_reduced[kPersonRight]->joints[jointName].vel.current)/2;
-                joint.speed         = (persons_global_reduced[kPersonLeft]->joints[jointName].speed       + persons_global_reduced[kPersonRight]->joints[jointName].speed)/2;
-                joint.vec           = (persons_global_reduced[kPersonLeft]->joints[jointName].vec         + persons_global_reduced[kPersonRight]->joints[jointName].vec)/2;
-                joint.springy_pos   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_pos + persons_global_reduced[kPersonRight]->joints[jointName].springy_pos)/2;
-                joint.springy_vel   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_vel + persons_global_reduced[kPersonRight]->joints[jointName].springy_vel)/2;
+            if(persons_global_reduced[kPersonAvg] && persons_global_reduced[kPersonLeft] && persons_global_reduced[kPersonRight]) {
+                for(auto&& jkv : persons_global_reduced[kPersonAvg]->joints) {
+                    pr::JointInfo& joint = jkv.second;
+                    string jointName = jkv.first;
+                    joint.confidence    = (persons_global_reduced[kPersonLeft]->joints[jointName].confidence  + persons_global_reduced[kPersonRight]->joints[jointName].confidence)/2;
+                    joint.pos.current   = (persons_global_reduced[kPersonLeft]->joints[jointName].pos.current + persons_global_reduced[kPersonRight]->joints[jointName].pos.current)/2;
+                    joint.quat          = (persons_global_reduced[kPersonLeft]->joints[jointName].quat        + persons_global_reduced[kPersonRight]->joints[jointName].quat)/2;
+                    joint.euler         = (persons_global_reduced[kPersonLeft]->joints[jointName].euler       + persons_global_reduced[kPersonRight]->joints[jointName].euler)/2;
+                    joint.vel.current   = (persons_global_reduced[kPersonLeft]->joints[jointName].vel.current + persons_global_reduced[kPersonRight]->joints[jointName].vel.current)/2;
+                    joint.speed         = (persons_global_reduced[kPersonLeft]->joints[jointName].speed       + persons_global_reduced[kPersonRight]->joints[jointName].speed)/2;
+                    joint.vec           = (persons_global_reduced[kPersonLeft]->joints[jointName].vec         + persons_global_reduced[kPersonRight]->joints[jointName].vec)/2;
+                    joint.springy_pos   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_pos + persons_global_reduced[kPersonRight]->joints[jointName].springy_pos)/2;
+                    joint.springy_vel   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_vel + persons_global_reduced[kPersonRight]->joints[jointName].springy_vel)/2;
+                }
+            } else {
+                ofLogError() << "App::update one of more persons == NULL";
             }
         } else {
-            ofLogError() << "App::update one of more persons == NULL";
+            // if no one exists, don't send any person data
+            persons_global_reduced.clear();
         }
 
+        // send osc
         sendOsc();
     }
 
@@ -147,6 +170,13 @@ class ofApp : public ofBaseApp {
     //--------------------------------------------------------------
     void sendOsc() {
         ofxOscBundle b;
+
+        // send metadata
+        ofxOscMessage m;
+        m.setAddress("/Meta");
+        m.addInt32Arg(persons_global_reduced.size());
+        b.addMessage(m);
+
         int i=0;
         for(auto&& person: persons_global_reduced) {
             if(person) {
@@ -194,13 +224,36 @@ class ofApp : public ofBaseApp {
             }
             i++;
         }
-        oscSender.sendBundle(b);
+        osc_sender.sendBundle(b);
     }
 
 
 
     //--------------------------------------------------------------
     void draw() {
+
+        cam.begin();
+
+        if(display.show_floor) {
+            ofSetColor(128);
+            ofDrawGridPlane(1.0f, display.floor_size, false);
+            ofDrawAxis(10.0);
+        }
+
+        if(display.show_all_persons) {
+            for(auto&& person: persons_global_all) {
+                if(person) person->draw(display.joint_radius, display.show_target_pos, display.show_springy_pos, display.show_vel, display.vel_mult);
+            }
+        }
+
+        if(display.show_reduced_persons) {
+            for(auto&& person: persons_global_reduced) {
+                if(person) person->draw(display.joint_radius, display.show_target_pos, display.show_springy_pos, display.show_vel, display.vel_mult);
+            }
+        }
+
+        cam.end();
+
         drawGui();
     }
 
@@ -212,21 +265,34 @@ class ofApp : public ofBaseApp {
         //        ImGui::ShowWindow("PR_PERSONS_RECEIVER", null, true, true);
 
         ImGui::CollapsingHeader("Global Params", NULL, true, true);
-        ImGui::SliderFloat("pos smoothing", &pr::Receiver::posSmoothing, 0, 1);
-        ImGui::SliderFloat("vel smoothing", &pr::Receiver::velSmoothing, 0, 1);
-        ImGui::SliderFloat("spring strength", &pr::Receiver::springStrength, 0, 1);
-        ImGui::SliderFloat("spring damping", &pr::Receiver::springDamping, 0, 1);
-        ImGui::SliderInt("kill frame count", &pr::Receiver::killFrameCount, 0, 1);
+        ImGui::SliderFloat("pos smoothing", &pr::Receiver::pos_smoothing, 0, 1);
+        ImGui::SliderFloat("vel smoothing", &pr::Receiver::vel_smoothing, 0, 1);
+        ImGui::SliderFloat("spring strength", &pr::Receiver::spring_strength, 0, 1);
+        ImGui::SliderFloat("spring damping", &pr::Receiver::spring_damping, 0, 1);
+        ImGui::SliderInt("kill frame count", &pr::Receiver::kill_frame_count, 0, 1);
 
         for(auto&& receiver : receivers) {
             if(receiver) receiver->drawGui();
             else ofLogError() << "App::drawGui receiver == NULL";
         }
 
-        oscSender.drawGui();
+        osc_sender.drawGui();
 
+        // display params
+        ImGui::CollapsingHeader("Display params", NULL, true, true);
+        ImGui::Checkbox("show floor", &display.show_floor);
+        ImGui::SliderFloat("floor size", &display.floor_size, 5, 20);
+        ImGui::Checkbox("show all persons", &display.show_all_persons);
+        ImGui::Checkbox("show reduced persons", &display.show_reduced_persons);
+
+        ImGui::SliderFloat("jointRadius", &display.joint_radius, 0, 1);
+        ImGui::Checkbox("show target pos", &display.show_target_pos);
+        ImGui::Checkbox("show springy pos", &display.show_springy_pos);
+        ImGui::Checkbox("show vel vector", &display.show_vel);
+        ImGui::SliderFloat("vel mult", &display.vel_mult, 0, 5);
+
+        // show stats
         ImGui::CollapsingHeader("Global Stats", NULL, true, true);
-
         stringstream str;
         str << "Total persons: " << persons_global_all.size() << endl;
         str << "fps: " << ofGetFrameRate();
@@ -239,7 +305,10 @@ class ofApp : public ofBaseApp {
 
     //--------------------------------------------------------------
     void keyPressed(int key) {
-
+        switch(key) {
+        case 'l' :loadFromXml(kXmlFilename); break;
+        case 's' :saveToXml(kXmlFilename); break;
+        }
     }
 
     //--------------------------------------------------------------

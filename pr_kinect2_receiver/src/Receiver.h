@@ -16,19 +16,18 @@ class Receiver {
 public:
     typedef shared_ptr<Receiver> Ptr;
 
-    static float posSmoothing;
-    static float velSmoothing;
-    static float springStrength;
-    static float springDamping;
-    static int killFrameCount;
+    static float pos_smoothing;
+    static float vel_smoothing;
+    static float spring_strength;
+    static float spring_damping;
+    static int kill_frame_count;
 
 
-    Receiver(int i) { _index = i; }
+    Receiver(int i) { _index = i; _port = 8000 + _index; }
 
     // pass in global (i.e. containing all persons from all receivers) vector to update
     void update(vector<Person::Ptr>& persons_global);
 
-    void draw();
     void drawGui();
 
     bool isConnected() const    { return _isConnected; }

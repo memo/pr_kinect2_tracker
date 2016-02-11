@@ -9,32 +9,32 @@ namespace pr {
 class OscSender {
 public:
     bool enabled = true;
-    int hostPort = 0;
-    string hostIp = "127.0.0.1";
-    ofxOscSender oscSender;
+    int host_port = 0;
+    string host_ip = "127.0.0.1";
+    ofxOscSender osc_sender;
 
 
     void setup(string s, int p) {
-        if(hostPort != p || hostIp != s) {
-            hostPort = p;
-            hostIp = s;
+        if(host_port != p || host_ip != s) {
+            host_port = p;
+            host_ip = s;
             init();
         }
     }
 
     void init() {
-        oscSender.setup(hostIp, hostPort);
+        osc_sender.setup(host_ip, host_port);
     }
 
     void sendBundle(ofxOscBundle& b) {
-        if(enabled && hostPort) oscSender.sendBundle(b);
+        if(enabled && host_port) osc_sender.sendBundle(b);
     }
 
     void drawGui() {
         ImGui::CollapsingHeader("OscSender", NULL, true, true);
         ImGui::Checkbox("Enabled", &enabled);
         //ImGui::InputText("Host ip", hostIp.c_str(), )
-        ImGui::InputInt("Port", &hostPort, 1, 100);
+        ImGui::InputInt("Port", &host_port, 1, 100);
     }
 
 

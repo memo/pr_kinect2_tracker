@@ -34,13 +34,20 @@ struct Person {
     typedef shared_ptr<Person> Ptr;
 
     // keep alive for XXX frames
-    int aliveCounter = 0;
+    int alive_counter = 0;
+
+    // draw color of this person (gonna color persons from kinect 1 red, kinect 2 green, kinect 3 blue etc)
+    ofColor color = ofColor::yellow;
 
     // joint information
     map<string, JointInfo> joints;
 
     // other info? hand states, lean, restrictedness etc
 
+
+    /*
+    // diffs to another person. useful for detecting if two people from different kinects are the same person or not
+    // ignore for now
 
     // L1 norm of diffs to another person
     float dist(Ptr other) {
@@ -56,11 +63,44 @@ struct Person {
         for(auto&& j : joints) s += (j.second.pos.current - other->joints[j.first].pos.current).lengthSquared();
         return sqrt(s);
     }
-
+*/
 
     // used for sorting persons left to right usinng waist position
     static bool compare(Ptr a, Ptr b) { return a->joints["waist"].pos.current.x < b->joints["waist"].pos.current.x; }
+
+
+    // draw person
+    void draw(float joint_radius, bool show_target_pos, bool show_springy_pos, bool show_vel, float vel_mult) {
+
+       // iterate joints
+       for(auto&& jkv : joints) {
+           JointInfo& joint = jkv.second;
+
+           ofSetColor(color);
+
+           // draw limb
+           ofDrawLine(joint.pos.current, joint.pos.current + joint.vec);
+
+           // draw target (non smoothed joint)
+           if(show_target_pos) ofDrawSphere(joint.pos.target, joint_radius);
+
+           // draw springy_pos
+           if(show_springy_pos) ofDrawSphere(joint.springy_pos, joint_radius);
+
+           //  draw joint (Faded if showing target or springypos)
+           ofSetColor(color, show_target_pos || show_springy_pos ? 128 : 255);
+           ofDrawSphere(joint.pos.current, joint_radius);
+
+
+           // draw velocity vector
+           if(show_vel) {
+               ofSetColor(255);
+               ofDrawArrow(joint.pos.current, joint.pos.current + joint.vel.current * vel_mult);
+           }
+       }
+    }
 };
 
 
 }
+
