@@ -9,18 +9,16 @@ namespace pr {
 class OscSender {
 public:
     bool enabled = true;
-    int host_port = 0;
-    string host_ip = "127.0.0.1";
+    int host_port;
+    string host_ip;
     ofxOscSender osc_sender;
 
 
     void setup(string s, int p) {
-        if(host_port != p || host_ip != s) {
-            host_port = p;
-            host_ip = s;
-            init();
-        }
-    }
+		host_port = p;
+        host_ip = s;
+        init();
+	}
 
     void init() {
         osc_sender.setup(host_ip, host_port);
@@ -39,12 +37,21 @@ public:
 
 
     void loadFromXml(ofXml& xml) {
-        // load ip and port from xml
-        // init osc if changed
+		xml.setTo("//Settings/Sender");
+		if (host_port != xml.getIntValue("port") || host_ip != xml.getValue<string>("ipAddress")) {
+			host_port = xml.getIntValue("port");
+			host_ip = xml.getValue<string>("ipAddress");
+			init();
+		}
     }
 
     void saveToXml(ofXml& xml) {
         // save ip and port to xml
+		xml.setTo("//Settings");
+		xml.addChild("Sender");
+		xml.setTo("Sender");
+		xml.addValue("port", ofToString(host_port));
+		xml.addValue("ipAddress", host_ip);
 
     }
 

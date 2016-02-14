@@ -55,6 +55,7 @@ class ofApp : public ofBaseApp {
         receivers.resize(3);
         for(int i=0; i<receivers.size(); i++) receivers[i] = shared_ptr<pr::Receiver>(new pr::Receiver(i+1));
 
+		osc_sender.setup("127.0.0.1", 8000);
 
         // init number of final persons to 3 (completely coincidence that we have 3 receivers as well)
         persons_global_reduced.resize(kPersonCount);
@@ -85,39 +86,55 @@ class ofApp : public ofBaseApp {
 
         osc_sender.loadFromXml(xml);
 
-        // TODO: load other settings
-        //        Receiver::posSmoothing
-        //        Receiver::velSmoothing
-        //        Receiver::springStrength
-        //        Receiver::springDamping
-        //        Receiver::killFrameCount
-        //        display params
-        //        anything else?
+		xml.setTo("//Settings/Display");
+		display.show_floor = xml.getBoolValue("show_floor");
+		display.floor_size = xml.getFloatValue("floor_size");
+		display.show_all_persons = xml.getBoolValue("show_all_persons");
+		display.show_reduced_persons = xml.getBoolValue("show_reduced_persons");
+		display.joint_radius = xml.getFloatValue("joint_radius");
+		display.show_target_pos = xml.getBoolValue("show_target_pos");
+		display.show_springy_pos = xml.getBoolValue("show_springy_pos");
+		display.show_vel = xml.getBoolValue("show_vel");
+		display.vel_mult = xml.getFloatValue("vel_mult");
     }
-
-
 
     //--------------------------------------------------------------
     void saveToXml(string filename) {
 
         ofXml xml;
 
-        // tell receivers to write the settings to xml to be saved
-        for(auto&& receiver : receivers) {
-            if(receiver) receiver->saveToXml(xml);
-            else ofLogError() << "App::saveToXml receiver == NULL";
-        }
+		xml.addChild("Settings");
+		xml.setTo("Settings");
+		xml.addChild("Display");
+		xml.setTo("Display");
 
-        osc_sender.saveToXml(xml);
+		xml.addValue("show_floor", ofToString(display.show_floor));
+		xml.addValue("floor_size", ofToString(display.floor_size));
+		xml.addValue("show_all_persons", ofToString(display.show_all_persons));
+		xml.addValue("show_reduced_persons", ofToString(display.show_reduced_persons));
+		xml.addValue("joint_radius", ofToString(display.joint_radius));
+		xml.addValue("show_target_pos", ofToString(display.show_target_pos));
+		xml.addValue("show_springy_pos", ofToString(display.show_springy_pos));
+		xml.addValue("show_vel", ofToString(display.show_vel));
+		xml.addValue("vel_mult", ofToString(display.vel_mult));
 
-        // TODO: also write other settings to xml
-        //        Receiver::posSmoothing
-        //        Receiver::velSmoothing
-        //        Receiver::springStrength
-        //        Receiver::springDamping
-        //        Receiver::killFrameCount
-        //        display params
-        //        anything else?
+		xml.setTo("//Settings");
+		xml.addChild("Receivers");
+		xml.setTo("Receivers");
+
+		xml.addValue("pos_smoothing", ofToString(receivers[0]->pos_smoothing));
+		xml.addValue("vel_smoothing", ofToString(receivers[0]->vel_smoothing));
+		xml.addValue("spring_strength", ofToString(receivers[0]->spring_strength));
+		xml.addValue("spring_damping", ofToString(receivers[0]->spring_damping));
+		xml.addValue("kill_frame_count", ofToString(receivers[0]->kill_frame_count));
+
+		// tell receivers to write the settings to xml to be saved
+		for (auto&& receiver : receivers) {
+			if (receiver) receiver->saveToXml(xml);
+			else ofLogError() << "App::saveToXml receiver == NULL";
+		}
+
+		osc_sender.saveToXml(xml);
 
         // save xml
         xml.save(filename);

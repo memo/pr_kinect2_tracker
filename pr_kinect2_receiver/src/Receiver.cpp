@@ -197,18 +197,48 @@ void Receiver::updateMatrix() {
 
 
 void Receiver::saveToXml(ofXml& xml) const {
-    // TODO: write to xml, under 'Receiver_index' section
-    // - port
-    // - pos
-    // - rot
+
+	xml.setTo("//Settings/Receivers");
+	xml.addChild("receiver");
+	xml.setTo("receiver[" + ofToString(_index - 1) + "]");
+	xml.addValue("port", ofToString(_port));
+
+	xml.addChild("pos");
+	xml.setTo("pos");
+	xml.addValue("x", ofToString(_pos.x));
+	xml.addValue("y", ofToString(_pos.y));
+	xml.addValue("z", ofToString(_pos.z));
+
+	xml.setToParent();
+	xml.addChild("rot");
+	xml.setTo("rot");
+	xml.addValue("x", ofToString(_rot.x));
+	xml.addValue("y", ofToString(_rot.y));
+	xml.addValue("z", ofToString(_rot.z));
+	
 }
 
 void Receiver::loadFromXml(ofXml& xml) {
-    // TODO: ead from xml, under 'Receiver_index' section
-    // - port
-    // - pos
-    // - rot
-    // if port loaded is different to current -> initOsc();
+    
+	xml.setTo("//Settings/Receivers");
+	pos_smoothing = xml.getFloatValue("pos_smoothing");
+	vel_smoothing = xml.getFloatValue("vel_smoothing");
+	spring_strength = xml.getFloatValue("spring_strength");
+	spring_damping = xml.getFloatValue("spring_damping");
+	kill_frame_count = xml.getIntValue("kill_frame_count");
+
+
+	xml.setTo("receiver[" + ofToString(_index - 1) + "]");
+	
+	_pos = ofVec3f(xml.getFloatValue("pos/x"), xml.getFloatValue("pos/y"), xml.getFloatValue("pos/z"));
+	_rot = ofVec3f(xml.getFloatValue("rot/x"), xml.getFloatValue("rot/y"), xml.getFloatValue("rot/z"));
+	updateMatrix();
+
+	if (xml.getIntValue("port") != _port) {
+		_port = xml.getIntValue("port");
+		initOsc();
+	}
+
 }
 
 
