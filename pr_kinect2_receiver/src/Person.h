@@ -31,7 +31,8 @@ struct JointInfo {
 
 
 struct Person {
-    typedef shared_ptr<Person> Ptr;
+
+	typedef shared_ptr<Person> Ptr;
 
     // keep alive for XXX frames
     int alive_counter = 0;
@@ -41,6 +42,22 @@ struct Person {
 
     // joint information
     map<string, JointInfo> joints;
+
+	// xml for loadin joint map info
+	ofXml jointXml;
+
+	Person() {
+		// total number of tracked joints
+		int numJoints = 25;
+
+		jointXml.load("joints.xml");
+		jointXml.setTo("//JointNames");
+
+		for (int i = 0; i < numJoints; i++) {
+			string tempJointName = jointXml.getValue<string>("joint" + ofToString(i));
+			joints[tempJointName] = JointInfo();
+		}
+	};
 
     // other info? hand states, lean, restrictedness etc
 
@@ -65,7 +82,7 @@ struct Person {
     }
 */
 
-    // used for sorting persons left to right usinng waist position
+    // used for sorting persons left to right using waist position
     static bool compare(Ptr a, Ptr b) { return a->joints["waist"].pos.current.x < b->joints["waist"].pos.current.x; }
 
 

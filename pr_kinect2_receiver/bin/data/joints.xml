@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<JointNames>
+  <joint>waist</joint>
+  <joint>torso</joint>
+  <joint>neck</joint>
+  <joint>head</joint>
+
+  <joint>l_shoulder</joint>
+  <joint>l_elbow</joint>
+  <joint>l_wrist</joint>
+  <joint>l_hand</joint>
+
+  <joint>r_shoulder</joint>
+  <joint>r_elbow</joint>
+  <joint>r_wrist</joint>
+  <joint>r_hand</joint>
+
+  <joint>l_hip</joint>
+  <joint>l_knee</joint>
+  <joint>l_ankle</joint>
+  <joint>l_foot</joint>
+
+  <joint>r_hip</joint>
+  <joint>r_knee</joint>
+  <joint>r_ankle</joint>
+  <joint>r_foot</joint>
+
+  <joint>c_shoulder</joint>
+  <joint>l_hand_tip</joint>
+  <joint>l_thumb</joint>
+  <joint>r_hand_tip</joint>
+  <joint>r_thumb</joint>
+</JointNames>

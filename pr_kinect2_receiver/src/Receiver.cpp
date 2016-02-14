@@ -26,11 +26,14 @@ void Receiver::parseOsc() {
     while(oscReceiver->hasWaitingMessages()) {
         _isConnected = true;
 
-        // TODO: fill persons stucts with info from OSC
-        // code below is all placeholder junk with a few KEY notes.
-        {
+		ofxOscMessage m;
+		oscReceiver->getNextMessage(m);
+		if (strstr(m.getAddress().c_str(), "/skel/")) {
+			// should get something like splitAddress = ["", "skel", "0", "c_shoulder"]
+			vector<string> splitAddress = ofSplitString(m.getAddress(), "/");
+
             // assume we're parsing person with id == user_id
-            int user_id = 0;
+            int user_id = ofToInt(splitAddress[2]);
 
             bool do_delete = false;
 
@@ -40,27 +43,28 @@ void Receiver::parseOsc() {
                 persons.erase(user_id);
             }
 
+			// if new user found and calibrated, add to map
+			if (!persons[user_id]) {
+				ofLogWarning() << "Receiver::parseOsc creating person " << user_id;
+				persons[user_id] = make_shared<Person>();
+			}
+
             // this is the person we're receiving info for
             Person::Ptr person = persons[user_id];
 
-            // if new user found and calibrated, add to map
-            if(!persons[user_id]) {
-                ofLogWarning() << "Receiver::parseOsc creating person " << user_id;
-                persons[user_id] = make_shared<Person>();
-            }
-
             // whether it's new user or existing user, update joint details
+
 
             // reset alive counter
             person->alive_counter = 0;
 
             // read from osc:
-            string jointName;
-            float confidence;
-            ofVec3f pos;
-            ofQuaternion quat;
-            ofVec3f euler;
-            ofVec3f vel;
+			string jointName = splitAddress[3];
+			float confidence = m.getArgAsFloat(3);
+			ofVec3f pos = ofVec3f(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2));
+			ofQuaternion quat = ofQuaternion(m.getArgAsFloat(4), m.getArgAsFloat(5), m.getArgAsFloat(6), m.getArgAsFloat(7));
+			ofVec3f euler = quat.getEuler();
+			ofVec3f vel = ofVec3f(m.getArgAsFloat(8), m.getArgAsFloat(9), m.getArgAsFloat(10));
             //        float speed;  // DON"T READ SPEED FROM OSC
 
 

@@ -155,7 +155,7 @@ class ofApp : public ofBaseApp {
                     joint.springy_vel   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_vel + persons_global_reduced[kPersonRight]->joints[jointName].springy_vel)/2;
                 }
             } else {
-                ofLogError() << "App::update one of more persons == NULL";
+                ofLogError() << "App::update one or more persons == NULL";
             }
         } else {
             // if no one exists, don't send any person data
