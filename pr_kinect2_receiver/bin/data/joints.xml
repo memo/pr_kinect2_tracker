@@ -1,34 +1,69 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<JointNames>
-  <joint>waist</joint>
-  <joint>torso</joint>
-  <joint>neck</joint>
-  <joint>head</joint>
+<JointInfo>
+  <JointNames>
+    <joint>waist</joint>
+    <joint>torso</joint>
+    <joint>neck</joint>
+    <joint>head</joint>
 
-  <joint>l_shoulder</joint>
-  <joint>l_elbow</joint>
-  <joint>l_wrist</joint>
-  <joint>l_hand</joint>
+    <joint>l_shoulder</joint>
+    <joint>l_elbow</joint>
+    <joint>l_wrist</joint>
+    <joint>l_hand</joint>
 
-  <joint>r_shoulder</joint>
-  <joint>r_elbow</joint>
-  <joint>r_wrist</joint>
-  <joint>r_hand</joint>
+    <joint>r_shoulder</joint>
+    <joint>r_elbow</joint>
+    <joint>r_wrist</joint>
+    <joint>r_hand</joint>
 
-  <joint>l_hip</joint>
-  <joint>l_knee</joint>
-  <joint>l_ankle</joint>
-  <joint>l_foot</joint>
+    <joint>l_hip</joint>
+    <joint>l_knee</joint>
+    <joint>l_ankle</joint>
+    <joint>l_foot</joint>
 
-  <joint>r_hip</joint>
-  <joint>r_knee</joint>
-  <joint>r_ankle</joint>
-  <joint>r_foot</joint>
+    <joint>r_hip</joint>
+    <joint>r_knee</joint>
+    <joint>r_ankle</joint>
+    <joint>r_foot</joint>
 
-  <joint>c_shoulder</joint>
-  <joint>l_hand_tip</joint>
-  <joint>l_thumb</joint>
-  <joint>r_hand_tip</joint>
-  <joint>r_thumb</joint>
-</JointNames>
+    <joint>c_shoulder</joint>
+    <joint>l_hand_tip</joint>
+    <joint>l_thumb</joint>
+    <joint>r_hand_tip</joint>
+    <joint>r_thumb</joint>
+  </JointNames>
+
+  <JointParents>
+    <parent>waist</parent>
+    <parent>waist</parent>
+    <parent>c_shoulder</parent>
+    <parent>neck</parent>
+
+    <parent>c_shoulder</parent>
+    <parent>l_shoulder</parent>
+    <parent>l_elbow</parent>
+    <parent>l_wrist</parent>
+
+    <parent>c_shoulder</parent>
+    <parent>r_shoulder</parent>
+    <parent>r_elbow</parent>
+    <parent>r_wrist</parent>
+
+    <parent>waist</parent>
+    <parent>l_hip</parent>
+    <parent>l_knee</parent>
+    <parent>l_ankle</parent>
+
+    <parent>waist</parent>
+    <parent>r_hip</parent>
+    <parent>r_knee</parent>
+    <parent>r_ankle</parent>
+
+    <parent>torso</parent>
+    <parent>l_hand</parent>
+    <parent>l_hand</parent>
+    <parent>r_hand</parent>
+    <parent>r_hand</parent>
+  </JointParents>
+</JointInfo>

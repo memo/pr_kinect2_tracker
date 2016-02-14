@@ -25,6 +25,7 @@ struct JointInfo {
     Smoother<ofVec3f> vel;  // velocity vector, with smoothing
     float speed;            // speed, with smoothing
     ofVec3f vec;            // vector to parent
+	string parentJointName; // name of the parent joint for vec
     ofVec3f springy_pos;    // positions with springy behaviour applied
     ofVec3f springy_vel;    // velocities with springy behaviour applied
 };
@@ -51,11 +52,12 @@ struct Person {
 		int numJoints = 25;
 
 		jointXml.load("joints.xml");
-		jointXml.setTo("//JointNames");
+		jointXml.setTo("//JointInfo");
 
 		for (int i = 0; i < numJoints; i++) {
-			string tempJointName = jointXml.getValue<string>("joint" + ofToString(i));
+			string tempJointName = jointXml.getValue<string>("JointNames/joint[" + ofToString(i) + "]");
 			joints[tempJointName] = JointInfo();
+			joints[tempJointName].parentJointName = jointXml.getValue<string>("JointParents/parent[" + ofToString(i) + "]");
 		}
 	};
 

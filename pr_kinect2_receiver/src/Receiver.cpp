@@ -28,20 +28,14 @@ void Receiver::parseOsc() {
 
 		ofxOscMessage m;
 		oscReceiver->getNextMessage(m);
+
 		if (strstr(m.getAddress().c_str(), "/skel/")) {
+
 			// should get something like splitAddress = ["", "skel", "0", "c_shoulder"]
 			vector<string> splitAddress = ofSplitString(m.getAddress(), "/");
 
             // assume we're parsing person with id == user_id
             int user_id = ofToInt(splitAddress[2]);
-
-            bool do_delete = false;
-
-            // if person is deleted (user_lost) remove from map
-            if(do_delete) {
-                ofLogWarning() << "Receiver::parseOsc delete person " << user_id;
-                persons.erase(user_id);
-            }
 
 			// if new user found and calibrated, add to map
 			if (!persons[user_id]) {
@@ -69,7 +63,11 @@ void Receiver::parseOsc() {
 
 
             // apply world transformation to pos, quat and vel
-			pos = node.getGlobalTransformMatrix()*pos;
+			ofVec4f tempPos = ofVec4f(pos.x, pos.y, pos.z, 1.0);
+			pos = tempPos*node.getGlobalTransformMatrix();
+			ofVec4f tempVel = ofVec4f(vel.x, vel.y, vel.z, 1.0);
+			vel = tempVel*node.getGlobalTransformMatrix();
+			quat *= node.getGlobalOrientation();
 
 
 
@@ -82,6 +80,13 @@ void Receiver::parseOsc() {
             // only use velocity if we're confident, otherwise zero
             person->joints[jointName].vel.target = (confidence > 0.5) ? vel : ofVec3f(0);
         }
+
+		else if (strstr(m.getAddress().c_str(), "/lost_user")) {
+			// if person is deleted (user_lost) remove from map
+			int user_id = m.getArgAsInt(0);
+			ofLogWarning() << "Receiver::parseOsc delete person " << user_id;
+			persons.erase(user_id);
+		}
 
         // DONT DO SMOOTHING, SPRINGYNESS ETC. HERE SHOULD BE AT FIXED FPS EVERY FRAME, WHETHER DATA COMES IN OR NOT
     }
@@ -157,8 +162,7 @@ void Receiver::update(vector<Person::Ptr>& persons_global) {
             // (do this in separate pass to above to make sure all joints have been smoothed first)
             for(auto&& jkv : person->joints) {
                 JointInfo& joint = jkv.second;
-                string parentJointName; // TODO: read from list?
-                joint.vec = person->joints[parentJointName].pos.current - joint.pos.current;
+                joint.vec = person->joints[joint.parentJointName].pos.current - joint.pos.current;
             }
 
 
