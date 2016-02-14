@@ -72,6 +72,11 @@ xcuserdata
 *.ilk
 *.aps
 ipch/
+*.exe
+*.dll
+*.sln
+*.lib
+*.vcxproj*
 
 # Eclipse
 .metadata
