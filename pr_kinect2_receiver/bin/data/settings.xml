@@ -1,0 +1,68 @@
+<settings>
+  <display>
+    <show_floor>1</show_floor>
+    <floor_size>12.0</floor_size>
+    <show_all_persons>1</show_all_persons>
+    <show_reduced_persons>1</show_reduced_persons>
+    <joint_radius>0.2</joint_radius>
+    <show_target_pos>0</show_target_pos>
+    <show_springy_pos>0</show_springy_pos>
+    <show_vel>0</show_vel>
+    <vel_mult>1.0</vel_mult>
+  </display>
+  
+  <Receivers>
+    <posSmoothing>0.5</posSmoothing>
+    <velSmoothing>0.96</velSmoothing>
+    <spring_strength>0.02</spring_strength>
+    <spring_damping>0.05</spring_damping>
+    <kill_frame_count>10</kill_frame_count>
+
+    <receiver>
+      <port>8001</port>
+      <pos>
+        <x>0.0</x>
+        <y>0.0</y>
+        <z>0.0</z>
+      </pos>
+      <rot>
+        <x>0.0</x>
+        <y>0.0</y>
+        <z>0.0</z>
+      </rot>
+    </receiver>
+
+    <receiver>
+      <port>8002</port>
+      <pos>
+        <x>0.0</x>
+        <y>0.0</y>
+        <z>0.0</z>
+      </pos>
+      <rot>
+        <x>0.0</x>
+        <y>0.0</y>
+        <z>0.0</z>
+      </rot>
+    </receiver>
+
+    <receiver>
+      <port>8002</port>
+      <pos>
+        <x>0.0</x>
+        <y>0.0</y>
+        <z>0.0</z>
+      </pos>
+      <rot>
+        <x>0.0</x>
+        <y>0.0</y>
+        <z>0.0</z>
+      </rot>
+    </receiver>
+  </Receivers>
+
+  <Sender>
+    <port>8000</port>
+    <ipAddress>127.0.0.1</ipAddress>
+  </Sender>
+</settings>

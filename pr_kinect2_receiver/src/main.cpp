@@ -42,6 +42,7 @@ class ofApp : public ofBaseApp {
     } display;
 
     ofEasyCam cam;
+	ofPlanePrimitive floorPlane;
 
 
     //--------------------------------------------------------------
@@ -63,6 +64,10 @@ class ofApp : public ofBaseApp {
 
         cam.setPosition(0, 1.5, -5);
         cam.lookAt(ofVec3f(0, 1.5, -4), ofVec3f(0, 1, 0));
+		cam.setDistance(10);
+
+		floorPlane.set(display.floor_size, display.floor_size);
+		floorPlane.rotate(90, 1, 0, 0);
     }
 
 
@@ -235,9 +240,13 @@ class ofApp : public ofBaseApp {
         cam.begin();
 
         if(display.show_floor) {
-            ofSetColor(128);
-            ofDrawGridPlane(1.0f, display.floor_size, false);
-            ofDrawAxis(10.0);
+			ofPushStyle();
+				ofSetColor(128);
+				ofNoFill();
+				floorPlane.draw();
+				ofDrawAxis(1.0);
+			ofPopStyle();
+			
         }
 
         if(display.show_all_persons) {
@@ -308,6 +317,12 @@ class ofApp : public ofBaseApp {
         switch(key) {
         case 'l' :loadFromXml(kXmlFilename); break;
         case 's' :saveToXml(kXmlFilename); break;
+		case 'v': {
+			cam.setPosition(0, 1.5, -5);
+			cam.lookAt(ofVec3f(0, 1.5, -4), ofVec3f(0, 1, 0));
+			cam.setDistance(10);
+			break;
+		}
         }
     }
 

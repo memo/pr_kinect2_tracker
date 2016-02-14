@@ -69,6 +69,7 @@ void Receiver::parseOsc() {
 
 
             // apply world transformation to pos, quat and vel
+			pos = node.getGlobalTransformMatrix()*pos;
 
 
 
