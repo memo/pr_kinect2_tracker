@@ -69,7 +69,7 @@ class ofApp : public ofBaseApp {
 		cam.setDistance(10);
         cam.setNearClip(0.1);
 
-		floorPlane.set(display.floor_size, display.floor_size);
+		floorPlane.set(display.floor_size, display.floor_size, display.floor_size, display.floor_size);
 		floorPlane.rotate(90, 1, 0, 0);
     }
 
@@ -263,8 +263,8 @@ class ofApp : public ofBaseApp {
         if(display.show_floor) {
 			ofPushStyle();
 				ofSetColor(128);
-				ofNoFill();
-				floorPlane.draw();
+				//ofNoFill();
+                floorPlane.drawWireframe();
 				ofDrawAxis(1.0);
 			ofPopStyle();
         }
