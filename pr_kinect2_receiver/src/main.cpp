@@ -162,7 +162,7 @@ class ofApp : public ofBaseApp {
         }
 
         // if at least one person
-        if(persons_global_all.size() > 1) {
+        if(persons_global_all.size() > 0) {
             // sort global list
             std::sort(persons_global_all.begin(), persons_global_all.end(), pr::Person::compare);
             
@@ -210,7 +210,7 @@ class ofApp : public ofBaseApp {
 
         // send metadata
         ofxOscMessage m;
-        m.setAddress("/Meta");
+        m.setAddress("/meta");
         m.addInt32Arg(persons_global_reduced.size());
         b.addMessage(m);
 
@@ -222,7 +222,7 @@ class ofApp : public ofBaseApp {
                     string jointName = jkv.first;
 
                     ofxOscMessage m;
-                    m.setAddress("/Skel/" + ofToString(i) + "/" + jointName);
+                    m.setAddress("/skel/" + ofToString(i) + "/" + jointName);
                     m.addFloatArg(joint.pos.current.x);
                     m.addFloatArg(joint.pos.current.y);
                     m.addFloatArg(joint.pos.current.z);
@@ -317,6 +317,8 @@ class ofApp : public ofBaseApp {
         cam.end();
 
         drawGui();
+        
+        ofDrawBitmapString(ofToString(ofGetFrameRate(), 2), 30, 20);
     }
 
 
