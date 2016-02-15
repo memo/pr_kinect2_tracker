@@ -165,6 +165,14 @@ class ofApp : public ofBaseApp {
         if(persons_global_all.size() > 1) {
             // sort global list
             std::sort(persons_global_all.begin(), persons_global_all.end(), pr::Person::compare);
+            
+            if(persons_global_reduced.size() != kPersonCount) {
+                ofLogWarning() << "App::update persons_global_reduced.size() == " << persons_global_reduced.size() << ". Allocating";
+                persons_global_reduced.resize(kPersonCount);
+            }
+            
+            persons_global_reduced[kPersonLeft] = persons_global_all.front();
+            persons_global_reduced[kPersonRight] = persons_global_all.back();
 
             // calculate average person (allocate first if nessecary)
             if(!persons_global_reduced[kPersonAvg]) persons_global_reduced[kPersonAvg] = make_shared<pr::Person>();
