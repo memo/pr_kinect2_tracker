@@ -4,8 +4,8 @@
 		<draw_kinect_floors>1</draw_kinect_floors>
 		<floor_size>12</floor_size>
 		<show_all_persons>1</show_all_persons>
-		<show_reduced_persons>1</show_reduced_persons>
-		<joint_radius>0.106</joint_radius>
+		<show_reduced_persons>0</show_reduced_persons>
+		<joint_radius>0.054</joint_radius>
 		<show_target_pos>0</show_target_pos>
 		<show_springy_pos>0</show_springy_pos>
 		<show_vel>0</show_vel>
@@ -20,12 +20,12 @@
 		<receiver>
 			<port>8001</port>
 			<pos>
-				<x>0</x>
+				<x>-2.5</x>
 				<y>0</y>
 				<z>0</z>
 			</pos>
 			<rot>
-				<x>0</x>
+				<x>-22</x>
 				<y>0</y>
 				<z>0</z>
 			</rot>
@@ -38,7 +38,7 @@
 				<z>0</z>
 			</pos>
 			<rot>
-				<x>0</x>
+				<x>-22</x>
 				<y>0</y>
 				<z>0</z>
 			</rot>
@@ -46,12 +46,12 @@
 		<receiver>
 			<port>8003</port>
 			<pos>
-				<x>0</x>
+				<x>2.5</x>
 				<y>0</y>
 				<z>0</z>
 			</pos>
 			<rot>
-				<x>0</x>
+				<x>-22</x>
 				<y>0</y>
 				<z>0</z>
 			</rot>
