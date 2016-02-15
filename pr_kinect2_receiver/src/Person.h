@@ -107,14 +107,14 @@ struct Person {
            if(show_springy_pos) ofDrawSphere(joint.springy_pos, joint_radius);
 
            //  draw joint (Faded if showing target or springypos)
-           ofSetColor(color, show_target_pos || show_springy_pos ? 128 : 255);
+           ofSetColor(color, show_target_pos || show_springy_pos ? 50 : 255);
            ofDrawSphere(joint.pos.current, joint_radius);
 
 
            // draw velocity vector
            if(show_vel) {
                ofSetColor(255);
-               ofDrawArrow(joint.pos.current, joint.pos.current + joint.vel.current * vel_mult);
+               ofDrawArrow(joint.pos.current, joint.pos.current + joint.vel.current * vel_mult, 0.02f);
            }
        }
     }
