@@ -1,15 +1,14 @@
 <Settings>
 	<Display>
 		<show_floor>1</show_floor>
-		<draw_kinect_floors>1</draw_kinect_floors>
-		<floor_size>12</floor_size>
+		<draw_kinect_floors>0</draw_kinect_floors>
 		<show_all_persons>1</show_all_persons>
-		<show_reduced_persons>0</show_reduced_persons>
-		<joint_radius>0.054</joint_radius>
+		<show_reduced_persons>1</show_reduced_persons>
+		<joint_radius>0.042</joint_radius>
 		<show_target_pos>0</show_target_pos>
 		<show_springy_pos>0</show_springy_pos>
-		<show_vel>0</show_vel>
-		<vel_mult>1</vel_mult>
+		<show_vel>1</show_vel>
+		<vel_mult>0.179</vel_mult>
 	</Display>
 	<Receivers>
 		<pos_smoothing>0.5</pos_smoothing>
@@ -21,12 +20,12 @@
 			<port>8001</port>
 			<pos>
 				<x>-2.5</x>
-				<y>0</y>
+				<y>0.1</y>
 				<z>0</z>
 			</pos>
 			<rot>
 				<x>-22</x>
-				<y>0</y>
+				<y>180</y>
 				<z>0</z>
 			</rot>
 		</receiver>
@@ -34,12 +33,12 @@
 			<port>8002</port>
 			<pos>
 				<x>0</x>
-				<y>0</y>
+				<y>0.1</y>
 				<z>0</z>
 			</pos>
 			<rot>
 				<x>-22</x>
-				<y>0</y>
+				<y>180</y>
 				<z>0</z>
 			</rot>
 		</receiver>
@@ -47,12 +46,12 @@
 			<port>8003</port>
 			<pos>
 				<x>2.5</x>
-				<y>0</y>
+				<y>0.1</y>
 				<z>0</z>
 			</pos>
 			<rot>
 				<x>-22</x>
-				<y>0</y>
+				<y>180</y>
 				<z>0</z>
 			</rot>
 		</receiver>
