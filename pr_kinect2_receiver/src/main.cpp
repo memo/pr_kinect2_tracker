@@ -64,8 +64,8 @@ class ofApp : public ofBaseApp {
 
         loadFromXml(kXmlFilename);
 
-        cam.setPosition(0, 1.5, -5);
-        cam.lookAt(ofVec3f(0, 1.5, -4), ofVec3f(0, 1, 0));
+        cam.setPosition(0, 2.5, 5);
+        cam.lookAt(ofVec3f(0, 0.5, -4), ofVec3f(0, 1, 0));
 		cam.setDistance(10);
         cam.setNearClip(0.1);
 
@@ -350,12 +350,17 @@ class ofApp : public ofBaseApp {
         switch(key) {
         case 'l' :loadFromXml(kXmlFilename); break;
         case 's' :saveToXml(kXmlFilename); break;
-		case 'v': {
-			cam.setPosition(0, 1.5, -5);
-			cam.lookAt(ofVec3f(0, 1.5, -4), ofVec3f(0, 1, 0));
+		case 'v':
+			cam.setPosition(0, 2.5, 5);
+			cam.lookAt(ofVec3f(0, 0.5, -4), ofVec3f(0, 1, 0));
 			cam.setDistance(10);
 			break;
-		}
+        case 'f':
+            cam.setPosition(0, 2.5, 5);
+            cam.lookAt(ofVec3f(0, 2.5, -4), ofVec3f(0, 1, 0));
+            cam.setDistance(10);
+            break;
+                
         }
     }
 
