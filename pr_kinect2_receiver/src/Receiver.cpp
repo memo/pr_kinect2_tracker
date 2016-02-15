@@ -186,11 +186,12 @@ void Receiver::update(vector<Person::Ptr>& persons_global) {
 
 
 void Receiver::drawGui() {
-    ImGui::CollapsingHeader(("Receiver " + ofToString(_index)).c_str(), NULL, true, true);
-    ImGui::Checkbox("Enabled", &_enabled);
-    if(ImGui::InputInt("port", &_port, 1, 100)) initOsc();
-    if(ImGui::SliderFloat3("pos", _pos.getPtr(), -5, 5)) updateMatrix();
-    if(ImGui::SliderFloat3("rot", _rot.getPtr(), -180, 180)) updateMatrix();
+    string str_index = ofToString(_index);
+    ImGui::CollapsingHeader(("Receiver " + str_index).c_str(), NULL, true, true);
+    ImGui::Checkbox(("Enabled " + str_index).c_str(), &_enabled);
+    if(ImGui::InputInt(("port " + str_index).c_str(), &_port, 1, 100)) initOsc();
+    if(ImGui::SliderFloat3(("pos " + str_index).c_str(), _pos.getPtr(), -5, 5)) updateMatrix();
+    if(ImGui::SliderFloat3(("rot " + str_index).c_str(), _rot.getPtr(), -180, 180)) updateMatrix();
 
     stringstream str;
     str << "Connected: " << (_isConnected ? "YES" : "NO") << endl;
