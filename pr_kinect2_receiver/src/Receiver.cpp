@@ -65,7 +65,7 @@ void Receiver::parseOsc() {
             // apply world transformation to pos, quat and vel
 			ofVec4f tempPos = ofVec4f(pos.x, pos.y, pos.z, 1.0);
 			pos = tempPos*node.getGlobalTransformMatrix();
-			ofVec4f tempVel = ofVec4f(vel.x, vel.y, vel.z, 1.0);
+			ofVec4f tempVel = ofVec4f(vel.x, vel.y, vel.z, 0.0);    // 0 for w because we don't want transformation
 			vel = tempVel*node.getGlobalTransformMatrix();
 			quat *= node.getGlobalOrientation();
 
