@@ -67,6 +67,7 @@ class ofApp : public ofBaseApp {
         cam.setPosition(0, 1.5, -5);
         cam.lookAt(ofVec3f(0, 1.5, -4), ofVec3f(0, 1, 0));
 		cam.setDistance(10);
+        cam.setNearClip(0.1);
 
 		floorPlane.set(display.floor_size, display.floor_size);
 		floorPlane.rotate(90, 1, 0, 0);
