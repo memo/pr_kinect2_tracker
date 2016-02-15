@@ -31,7 +31,8 @@ class ofApp : public ofBaseApp {
     struct {
         bool show_floor = true;
 		bool draw_kinect_floors = false;
-        float floor_size = 12;
+        ofVec2f floor_size = { 10, 8 };
+        ofVec3f floor_pos = { 0, 0, -4 };
         bool show_all_persons = true;
         bool show_reduced_persons = true;
         float joint_radius = 0.2;
@@ -64,12 +65,14 @@ class ofApp : public ofBaseApp {
 
         loadFromXml(kXmlFilename);
 
-        cam.setPosition(0, 2.5, 5);
-        cam.lookAt(ofVec3f(0, 0.5, -4), ofVec3f(0, 1, 0));
-		cam.setDistance(10);
+        cam.setPosition(0, 2.5, 10);
+        cam.lookAt(display.floor_pos, ofVec3f(0, 1, 0));
+        cam.setDistance(10);
+        cam.setTarget(display.floor_pos);
         cam.setNearClip(0.1);
 
-		floorPlane.set(display.floor_size, display.floor_size, display.floor_size, display.floor_size);
+		floorPlane.set(display.floor_size.x, display.floor_size.y, display.floor_size.x+1, display.floor_size.y+1);
+        floorPlane.setPosition(display.floor_pos);
 		floorPlane.rotate(90, 1, 0, 0);
     }
 
@@ -91,7 +94,7 @@ class ofApp : public ofBaseApp {
 		xml.setTo("//Settings/Display");
 		display.show_floor = xml.getBoolValue("show_floor");
 		display.draw_kinect_floors = xml.getBoolValue("draw_kinect_floors");
-		display.floor_size = xml.getFloatValue("floor_size");
+//		display.floor_size = xml.getFloatValue("floor_size");
 		display.show_all_persons = xml.getBoolValue("show_all_persons");
 		display.show_reduced_persons = xml.getBoolValue("show_reduced_persons");
 		display.joint_radius = xml.getFloatValue("joint_radius");
@@ -113,7 +116,7 @@ class ofApp : public ofBaseApp {
 
 		xml.addValue("show_floor", ofToString(display.show_floor));
 		xml.addValue("draw_kinect_floors", ofToString(display.draw_kinect_floors));
-		xml.addValue("floor_size", ofToString(display.floor_size));
+//		xml.addValue("floor_size", ofToString(display.floor_size));
 		xml.addValue("show_all_persons", ofToString(display.show_all_persons));
 		xml.addValue("show_reduced_persons", ofToString(display.show_reduced_persons));
 		xml.addValue("joint_radius", ofToString(display.joint_radius));
@@ -323,7 +326,7 @@ class ofApp : public ofBaseApp {
         ImGui::CollapsingHeader("Display params", NULL, true, true);
         ImGui::Checkbox("show floor", &display.show_floor);
 		ImGui::Checkbox("draw Kinect floors", &display.draw_kinect_floors);
-        ImGui::SliderFloat("floor size", &display.floor_size, 5, 20);
+//        ImGui::SliderInt("floor size", &display.floor_size, 5, 20);
         ImGui::Checkbox("show all persons", &display.show_all_persons);
         ImGui::Checkbox("show reduced persons", &display.show_reduced_persons);
 
@@ -351,15 +354,11 @@ class ofApp : public ofBaseApp {
         case 'l' :loadFromXml(kXmlFilename); break;
         case 's' :saveToXml(kXmlFilename); break;
 		case 'v':
-			cam.setPosition(0, 2.5, 5);
-			cam.lookAt(ofVec3f(0, 0.5, -4), ofVec3f(0, 1, 0));
-			cam.setDistance(10);
+                cam.setPosition(0, 2.5, 10);
+                cam.lookAt(display.floor_pos, ofVec3f(0, 1, 0));
+                cam.setDistance(10);
+                cam.setTarget(display.floor_pos);
 			break;
-        case 'f':
-            cam.setPosition(0, 2.5, 5);
-            cam.lookAt(ofVec3f(0, 2.5, -4), ofVec3f(0, 1, 0));
-            cam.setDistance(10);
-            break;
                 
         }
     }
