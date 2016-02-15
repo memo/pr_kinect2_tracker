@@ -280,18 +280,6 @@ class ofApp : public ofBaseApp {
 			ofPopStyle();
         }
 
-		if (display.draw_kinect_floors) {
-			for (auto&& receiver : receivers) {
-				ofPlanePrimitive k_floor_plane;
-				k_floor_plane.setWidth(5.0);
-				k_floor_plane.setHeight(5.0);
-				k_floor_plane.setOrientation(ofQuaternion(1, 0, 0, 1)*receiver->floorQuat);
-				ofPushStyle();
-				ofSetColor(200);
-				k_floor_plane.drawWireframe();
-				ofPopStyle();
-			}
-		}
         if(display.show_all_persons) {
             for(auto&& person: persons_global_all) {
                 if(person) person->draw(display.joint_radius, display.show_target_pos, display.show_springy_pos, display.show_vel, display.vel_mult);
@@ -303,6 +291,28 @@ class ofApp : public ofBaseApp {
                 if(person) person->draw(display.joint_radius, display.show_target_pos, display.show_springy_pos, display.show_vel, display.vel_mult);
             }
         }
+        
+        for (auto&& receiver : receivers) {
+            if(receiver->isEnabled()) {
+                // draw axis for kinect pos/rot
+                receiver->getNode().transformGL();
+                ofDrawAxis(0.5);
+                receiver->getNode().restoreTransformGL();
+
+                if (display.draw_kinect_floors) {
+                    ofPlanePrimitive k_floor_plane(4, 4, 4, 4);
+                    //                    k_floor_plane.setWidth(4.0);
+                    //                    k_floor_plane.setHeight(4.0);
+                    k_floor_plane.setOrientation(ofQuaternion(1, 0, 0, 1)*receiver->floorQuat);
+                    k_floor_plane.setPosition(receiver->getNode().getGlobalPosition());
+                    ofPushStyle();
+                    ofSetColor(200);
+                    k_floor_plane.drawWireframe();
+                    ofPopStyle();
+                }
+            }
+        }
+        
 
         cam.end();
 

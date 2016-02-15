@@ -31,11 +31,14 @@ public:
 
     void drawGui();
 
+    bool isEnabled() const      { return _enabled; }
     bool isConnected() const    { return _isConnected; }
     int numPeople() const       { return _numPeople; }
 
     void saveToXml(ofXml& xml) const;
     void loadFromXml(ofXml& xml);
+    
+    const ofNode& getNode() const   { return node; }
 
 protected:
     bool _enabled = true;
