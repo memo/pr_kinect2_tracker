@@ -88,6 +88,11 @@ void Receiver::parseOsc() {
 			persons.erase(user_id);
 		}
 
+		else if (strstr(m.getAddress().c_str(), "/floorplane")) {
+			floorQuat = ofQuaternion(m.getArgAsFloat(0), m.getArgAsFloat(1), m.getArgAsFloat(2), m.getArgAsFloat(3));
+			floorQuat = floorQuat*node.getOrientationQuat();
+		}
+
         // DONT DO SMOOTHING, SPRINGYNESS ETC. HERE SHOULD BE AT FIXED FPS EVERY FRAME, WHETHER DATA COMES IN OR NOT
     }
 

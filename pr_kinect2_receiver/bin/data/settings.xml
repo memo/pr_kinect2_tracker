@@ -1,6 +1,7 @@
 <Settings>
 	<Display>
 		<show_floor>1</show_floor>
+		<draw_kinect_floors>1</draw_kinect_floors>
 		<floor_size>12</floor_size>
 		<show_all_persons>1</show_all_persons>
 		<show_reduced_persons>1</show_reduced_persons>

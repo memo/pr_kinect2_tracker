@@ -21,9 +21,10 @@ public:
     static float spring_strength;
     static float spring_damping;
     static int kill_frame_count;
+	ofQuaternion floorQuat;
 
 
-    Receiver(int i) { _index = i; _port = 8000 + _index; }
+	Receiver(int i) { _index = i; _port = 8000 + _index; }
 
     // pass in global (i.e. containing all persons from all receivers) vector to update
     void update(vector<Person::Ptr>& persons_global);

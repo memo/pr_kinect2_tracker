@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp {
     // display params
     struct {
         bool show_floor = true;
+		bool draw_kinect_floors = false;
         float floor_size = 12;
         bool show_all_persons = true;
         bool show_reduced_persons = true;
@@ -88,6 +89,7 @@ class ofApp : public ofBaseApp {
 
 		xml.setTo("//Settings/Display");
 		display.show_floor = xml.getBoolValue("show_floor");
+		display.draw_kinect_floors = xml.getBoolValue("draw_kinect_floors");
 		display.floor_size = xml.getFloatValue("floor_size");
 		display.show_all_persons = xml.getBoolValue("show_all_persons");
 		display.show_reduced_persons = xml.getBoolValue("show_reduced_persons");
@@ -109,6 +111,7 @@ class ofApp : public ofBaseApp {
 		xml.setTo("Display");
 
 		xml.addValue("show_floor", ofToString(display.show_floor));
+		xml.addValue("draw_kinect_floors", ofToString(display.draw_kinect_floors));
 		xml.addValue("floor_size", ofToString(display.floor_size));
 		xml.addValue("show_all_persons", ofToString(display.show_all_persons));
 		xml.addValue("show_reduced_persons", ofToString(display.show_reduced_persons));
@@ -263,9 +266,20 @@ class ofApp : public ofBaseApp {
 				floorPlane.draw();
 				ofDrawAxis(1.0);
 			ofPopStyle();
-			
         }
 
+		if (display.draw_kinect_floors) {
+			for (auto&& receiver : receivers) {
+				ofPlanePrimitive k_floor_plane;
+				k_floor_plane.setWidth(5.0);
+				k_floor_plane.setHeight(5.0);
+				k_floor_plane.setOrientation(ofQuaternion(1, 0, 0, 1)*receiver->floorQuat);
+				ofPushStyle();
+				ofSetColor(200);
+				k_floor_plane.drawWireframe();
+				ofPopStyle();
+			}
+		}
         if(display.show_all_persons) {
             for(auto&& person: persons_global_all) {
                 if(person) person->draw(display.joint_radius, display.show_target_pos, display.show_springy_pos, display.show_vel, display.vel_mult);
@@ -295,7 +309,7 @@ class ofApp : public ofBaseApp {
         ImGui::SliderFloat("vel smoothing", &pr::Receiver::vel_smoothing, 0, 1);
         ImGui::SliderFloat("spring strength", &pr::Receiver::spring_strength, 0, 1);
         ImGui::SliderFloat("spring damping", &pr::Receiver::spring_damping, 0, 1);
-        ImGui::SliderInt("kill frame count", &pr::Receiver::kill_frame_count, 0, 1);
+        ImGui::SliderInt("kill frame count", &pr::Receiver::kill_frame_count, 0, 200);
 
         for(auto&& receiver : receivers) {
             if(receiver) receiver->drawGui();
@@ -307,6 +321,7 @@ class ofApp : public ofBaseApp {
         // display params
         ImGui::CollapsingHeader("Display params", NULL, true, true);
         ImGui::Checkbox("show floor", &display.show_floor);
+		ImGui::Checkbox("draw Kinect floors", &display.draw_kinect_floors);
         ImGui::SliderFloat("floor size", &display.floor_size, 5, 20);
         ImGui::Checkbox("show all persons", &display.show_all_persons);
         ImGui::Checkbox("show reduced persons", &display.show_reduced_persons);
