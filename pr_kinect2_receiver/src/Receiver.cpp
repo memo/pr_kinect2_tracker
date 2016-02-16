@@ -24,7 +24,7 @@ void Receiver::parseOsc() {
 
     // parse incoming OSC
     while(oscReceiver->hasWaitingMessages()) {
-        _isConnected = true;
+        _isConnected = 5;   // arbitrary, 5 frames buffer on connected flag
 
 		ofxOscMessage m;
 		oscReceiver->getNextMessage(m);
@@ -102,7 +102,7 @@ void Receiver::parseOsc() {
 void Receiver::update(vector<Person::Ptr>& persons_global) {
     // return if not _enabled
     if(!_enabled) {
-        _isConnected = false;
+        _isConnected = 0;
         _numPeople = 0;
         persons.clear();
         oscReceiver = NULL;
@@ -111,7 +111,7 @@ void Receiver::update(vector<Person::Ptr>& persons_global) {
 
 
     // clear flag
-    _isConnected = false;
+    if(_isConnected > 0) _isConnected--;
 
     // check for Osc messages and update
     parseOsc();
@@ -196,7 +196,7 @@ void Receiver::drawGui() {
     if(ImGui::SliderFloat3(("rot " + str_index).c_str(), _rot.getPtr(), -180, 180)) updateMatrix();
 
     stringstream str;
-    str << "Connected: " << (_isConnected ? "YES" : "NO") << endl;
+    str << "Connected: " << (isConnected() ? "YES" : "NO") << endl;
     str << "Num People: " << _numPeople;
     ImGui::Text(str.str().c_str());
 }

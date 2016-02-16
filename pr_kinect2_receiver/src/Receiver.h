@@ -32,7 +32,7 @@ public:
     void drawGui();
 
     bool isEnabled() const      { return _enabled; }
-    bool isConnected() const    { return _isConnected; }
+    bool isConnected() const    { return _isConnected > 0; }
     int numPeople() const       { return _numPeople; }
 
     void saveToXml(ofXml& xml) const;
@@ -47,7 +47,7 @@ protected:
     ofVec3f _pos;       // world position of sensor
     ofVec3f _rot;       // world orientation (degrees) of sensor
 
-    bool _isConnected;  // is receiving any signal from Tracker
+    int _isConnected;  // is receiving any signal from Tracker
     int _numPeople;      // current number of people on that Tracker
 
     ofNode node;        // contains transformation matrix of kinect (for transformming joints)
