@@ -143,3 +143,4 @@ build*
 *.pb
 *.data
 checkpoint
+*.exp
