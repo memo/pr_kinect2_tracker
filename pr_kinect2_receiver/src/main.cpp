@@ -55,16 +55,14 @@ class ofApp : public ofBaseApp {
         ofBackground(0);
         ofSetVerticalSync(true);
         ofSetFrameRate(30);
-
+        
+        pr::Person::init_joint_parents();
+        
         // init and allocate 3x receivers (because we have 3x kinects - this number can be hardcoded for now)
         receivers.resize(3);
         for(int i=0; i<receivers.size(); i++) receivers[i] = shared_ptr<pr::Receiver>(new pr::Receiver(i+1));
 
-		osc_sender.setup("127.0.0.1", 8000);
-
-        // init number of final persons to 3 (completely coincidence that we have 3 receivers as well)
-        persons_global_reduced.resize(kPersonCount);
-
+//		osc_sender.setup("127.0.0.1", 8000);
 
         loadFromXml(kXmlFilename);
 

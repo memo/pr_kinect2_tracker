@@ -45,9 +45,21 @@ struct Person {
     map<string, JointInfo> joints;
     
     static map <string, string> joint_parents;
-
+    
+    // load joint parent information from xml
+    static void init_joint_parents() {
+        ofLogNotice() << "Person::init_joint_parents";
+        // xml for loadin joint map info
+        ofXml joints_xml("joints.xml");
+        int numJoints = 25; // read from XML
+        for (int i = 0; i < numJoints; i++) {
+            string joint_name = joints_xml.getValue<string>("JointNames/joint[" + ofToString(i) + "]");
+            joint_parents[joint_name] = joints_xml.getValue<string>("JointParents/parent[" + ofToString(i) + "]");
+        }
+    }
+    
+    
 	Person() {
-        if(joint_parents.empty()) init_joint_parents();
 	};
 
     // other info? hand states, lean, restrictedness etc
@@ -75,19 +87,6 @@ struct Person {
 
     // used for sorting persons left to right using waist position
     static bool compare(Ptr a, Ptr b) { return a->joints["waist"].pos.current.x < b->joints["waist"].pos.current.x; }
-    
-    
-    // load joint parent information from xml
-    static void init_joint_parents() {
-        ofLogNotice() << "Person::init_joint_parents";
-        // xml for loadin joint map info
-        ofXml joints_xml("joints.xml");
-        int numJoints = 25; // read from XML
-        for (int i = 0; i < numJoints; i++) {
-            string joint_name = joints_xml.getValue<string>("JointNames/joint[" + ofToString(i) + "]");
-            joint_parents[joint_name] = joints_xml.getValue<string>("JointParents/parent[" + ofToString(i) + "]");
-        }
-    }
 
     
     // draw person
