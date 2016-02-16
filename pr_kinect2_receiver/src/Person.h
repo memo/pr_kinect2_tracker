@@ -25,7 +25,7 @@ struct JointInfo {
     Smoother<ofVec3f> vel;  // velocity vector, with smoothing
     float speed;            // speed, with smoothing
     ofVec3f vec;            // vector to parent
-	string parentJointName; // name of the parent joint for vec
+//	string parentJointName; // name of the parent joint for vec
     ofVec3f springy_pos;    // positions with springy behaviour applied
     ofVec3f springy_vel;    // velocities with springy behaviour applied
 };
@@ -43,22 +43,11 @@ struct Person {
 
     // joint information
     map<string, JointInfo> joints;
-
-	// xml for loadin joint map info
-	ofXml jointXml;
+    
+    static map <string, string> joint_parents;
 
 	Person() {
-		// total number of tracked joints
-		int numJoints = 25;
-
-		jointXml.load("joints.xml");
-		jointXml.setTo("//JointInfo");
-
-		for (int i = 0; i < numJoints; i++) {
-			string tempJointName = jointXml.getValue<string>("JointNames/joint[" + ofToString(i) + "]");
-			joints[tempJointName] = JointInfo();
-			joints[tempJointName].parentJointName = jointXml.getValue<string>("JointParents/parent[" + ofToString(i) + "]");
-		}
+        if(joint_parents.empty()) init_joint_parents();
 	};
 
     // other info? hand states, lean, restrictedness etc
@@ -86,8 +75,21 @@ struct Person {
 
     // used for sorting persons left to right using waist position
     static bool compare(Ptr a, Ptr b) { return a->joints["waist"].pos.current.x < b->joints["waist"].pos.current.x; }
+    
+    
+    // load joint parent information from xml
+    static void init_joint_parents() {
+        ofLogNotice() << "Person::init_joint_parents";
+        // xml for loadin joint map info
+        ofXml joints_xml("joints.xml");
+        int numJoints = 25; // read from XML
+        for (int i = 0; i < numJoints; i++) {
+            string joint_name = joints_xml.getValue<string>("JointNames/joint[" + ofToString(i) + "]");
+            joint_parents[joint_name] = joints_xml.getValue<string>("JointParents/parent[" + ofToString(i) + "]");
+        }
+    }
 
-
+    
     // draw person
     void draw(float joint_radius, bool show_target_pos, bool show_springy_pos, bool show_vel, float vel_mult) {
 

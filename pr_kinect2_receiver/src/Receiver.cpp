@@ -166,8 +166,10 @@ void Receiver::update(vector<Person::Ptr>& persons_global) {
             // second pass: do vectors to parent
             // (do this in separate pass to above to make sure all joints have been smoothed first)
             for(auto&& jkv : person->joints) {
+                string joint_name = jkv.first;
+                string parent_name = Person::joint_parents[joint_name];
                 JointInfo& joint = jkv.second;
-                joint.vec = person->joints[joint.parentJointName].pos.current - joint.pos.current;
+                joint.vec = person->joints[parent_name].pos.current - joint.pos.current;
             }
 
 

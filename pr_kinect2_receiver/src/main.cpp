@@ -12,6 +12,9 @@
 
 #define kXmlFilename    "settings.xml"
 
+map <string, string> pr::Person::joint_parents;
+
+
 class ofApp : public ofBaseApp {
 
     // the receivers
