@@ -44,16 +44,24 @@ struct Person {
     // joint information
     map<string, JointInfo> joints;
     
-    static map <string, string> joint_parents;
+    // static joint info
+    static vector<string> joint_names;
+    static map<string, string> joint_parents;
     
     // load joint parent information from xml
     static void init_joint_parents() {
         ofLogNotice() << "Person::init_joint_parents";
+        
+        joint_names.clear();
+        joint_parents.clear();
+        
         // xml for loadin joint map info
         ofXml joints_xml("joints.xml");
         int numJoints = 25; // read from XML
         for (int i = 0; i < numJoints; i++) {
             string joint_name = joints_xml.getValue<string>("JointNames/joint[" + ofToString(i) + "]");
+            
+            joint_names.push_back(joint_name);
             joint_parents[joint_name] = joints_xml.getValue<string>("JointParents/parent[" + ofToString(i) + "]");
         }
     }

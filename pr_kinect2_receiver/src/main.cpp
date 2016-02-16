@@ -12,8 +12,8 @@
 
 #define kXmlFilename    "settings.xml"
 
-map <string, string> pr::Person::joint_parents;
-
+map<string, string> pr::Person::joint_parents;
+vector<string> pr::Person::joint_names;
 
 class ofApp : public ofBaseApp {
 
