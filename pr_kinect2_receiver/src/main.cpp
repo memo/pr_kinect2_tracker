@@ -336,13 +336,14 @@ class ofApp : public ofBaseApp {
         gui.begin();
         //        ImGui::ShowWindow("PR_PERSONS_RECEIVER", null, true, true);
 
-        ImGui::CollapsingHeader("Global Params", NULL, true, true);
-        ImGui::SliderFloat("pos smoothing", &pr::Receiver::pos_smoothing, 0, 1);
-        ImGui::SliderFloat("vel smoothing", &pr::Receiver::vel_smoothing, 0, 1);
-        ImGui::SliderFloat("spring strength", &pr::Receiver::spring_strength, 0, 1);
-        ImGui::SliderFloat("spring damping", &pr::Receiver::spring_damping, 0, 1);
-        ImGui::SliderInt("kill frame count", &pr::Receiver::kill_frame_count, 0, 200);
-
+        if(ImGui::CollapsingHeader("Global Params", NULL, true, true)) {
+            ImGui::SliderFloat("pos smoothing", &pr::Receiver::pos_smoothing, 0, 1);
+            ImGui::SliderFloat("vel smoothing", &pr::Receiver::vel_smoothing, 0, 1);
+            ImGui::SliderFloat("spring strength", &pr::Receiver::spring_strength, 0, 1);
+            ImGui::SliderFloat("spring damping", &pr::Receiver::spring_damping, 0, 1);
+            ImGui::SliderInt("kill frame count", &pr::Receiver::kill_frame_count, 0, 200);
+            }
+           
         for(auto&& receiver : receivers) {
             if(receiver) receiver->drawGui();
             else ofLogError() << "App::drawGui receiver == NULL";
@@ -351,25 +352,27 @@ class ofApp : public ofBaseApp {
         osc_sender.drawGui();
 
         // display params
-        ImGui::CollapsingHeader("Display params", NULL, true, true);
-        ImGui::Checkbox("show floor", &display.show_floor);
-		ImGui::Checkbox("draw Kinect floors", &display.draw_kinect_floors);
-//        ImGui::SliderInt("floor size", &display.floor_size, 5, 20);
-        ImGui::Checkbox("show all persons", &display.show_all_persons);
-        ImGui::Checkbox("show reduced persons", &display.show_reduced_persons);
+        if(ImGui::CollapsingHeader("Display params", NULL, true, true)) {
+            ImGui::Checkbox("show floor", &display.show_floor);
+            ImGui::Checkbox("draw Kinect floors", &display.draw_kinect_floors);
+    //        ImGui::SliderInt("floor size", &display.floor_size, 5, 20);
+            ImGui::Checkbox("show all persons", &display.show_all_persons);
+            ImGui::Checkbox("show reduced persons", &display.show_reduced_persons);
 
-        ImGui::SliderFloat("jointRadius", &display.joint_radius, 0, 1);
-        ImGui::Checkbox("show target pos", &display.show_target_pos);
-        ImGui::Checkbox("show springy pos", &display.show_springy_pos);
-        ImGui::Checkbox("show vel vector", &display.show_vel);
-        ImGui::SliderFloat("vel mult", &display.vel_mult, 0, 5);
-
+            ImGui::SliderFloat("jointRadius", &display.joint_radius, 0, 1);
+            ImGui::Checkbox("show target pos", &display.show_target_pos);
+            ImGui::Checkbox("show springy pos", &display.show_springy_pos);
+            ImGui::Checkbox("show vel vector", &display.show_vel);
+            ImGui::SliderFloat("vel mult", &display.vel_mult, 0, 5);
+        }
+              
         // show stats
-        ImGui::CollapsingHeader("Global Stats", NULL, true, true);
-        stringstream str;
-        str << "Total persons: " << persons_global_all.size() << endl;
-        str << "fps: " << ofGetFrameRate();
-        ImGui::Text(str.str().c_str());
+        if(ImGui::CollapsingHeader("Global Stats", NULL, true, true)) {
+            stringstream str;
+            str << "Total persons: " << persons_global_all.size() << endl;
+            str << "fps: " << ofGetFrameRate();
+            ImGui::Text(str.str().c_str());
+        }
 
         ml.drawGui();
 

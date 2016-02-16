@@ -234,29 +234,29 @@ namespace pr {
                 str << "model.output_dim: " << model.output_dim << endl;
                 ImGui::Text(str.str().c_str());
                 
-                ImGui::CollapsingHeader("Joints");
-                bool all_joints = ImGui::Button("All joints");
-                bool no_joints = ImGui::Button("No joints");
-                
-                bool rep_changed = false;
-                // iterate joint parents (to get names of all joints)
-                static map<string, bool> joints_bools_map;  // map of bools for joints (for gui)
-                for(auto&& joint_name : Person::joint_names) {
-                    if(all_joints) { joints_bools_map[joint_name] = true; rep_changed = true; }
-                    if(no_joints) { joints_bools_map[joint_name] = false; rep_changed = true; }
-                    if(ImGui::Checkbox(joint_name.c_str(), &joints_bools_map[joint_name])) rep_changed = true;
+                if(ImGui::CollapsingHeader("Joints", NULL, true, true)) {
+                    bool all_joints = ImGui::Button("All joints");
+                    bool no_joints = ImGui::Button("No joints");
+                    
+                    bool rep_changed = false;
+                    // iterate joint parents (to get names of all joints)
+                    static map<string, bool> joints_bools_map;  // map of bools for joints (for gui)
+                    for(auto&& joint_name : Person::joint_names) {
+                        if(all_joints) { joints_bools_map[joint_name] = true; rep_changed = true; }
+                        if(no_joints) { joints_bools_map[joint_name] = false; rep_changed = true; }
+                        if(ImGui::Checkbox(joint_name.c_str(), &joints_bools_map[joint_name])) rep_changed = true;
+                    }
+                    
+                    if(rep_changed) {
+                        joints_to_include = update_representation_vec(joints_bools_map);
+                        init();
+                    }
+                    
+                    // for testing
+                    //                string joint_names = "";
+                    //                for(auto&& joint_name : joints_to_include) joint_names += joint_name + " ";
+                    //                ImGui::Text(joint_names.c_str());
                 }
-                
-                if(rep_changed) {
-                    joints_to_include = update_representation_vec(joints_bools_map);
-                    init();
-                }
-                
-                // for testing
-                //                string joint_names = "";
-                //                for(auto&& joint_name : joints_to_include) joint_names += joint_name + " ";
-                //                ImGui::Text(joint_names.c_str());
-                
                 ImGui::End();
             }
             
