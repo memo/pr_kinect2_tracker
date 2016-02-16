@@ -4,6 +4,7 @@
 #include "Receiver.h"
 #include "ofxImGui.h"
 #include "OscSender.h"
+#include "ml.h"
 
 #define kPersonAvg      0
 #define kPersonLeft     1
@@ -29,6 +30,8 @@ class ofApp : public ofBaseApp {
 
     // osc
     pr::OscSender osc_sender;
+    
+    pr::ml::Trainer ml;
 
     // display params
     struct {
@@ -174,6 +177,10 @@ class ofApp : public ofBaseApp {
             
             persons_global_reduced[kPersonLeft] = persons_global_all.front();
             persons_global_reduced[kPersonRight] = persons_global_all.back();
+            
+            
+            ml.update(persons_global_reduced);
+            
 
             // calculate average person (allocate first if nessecary)
             if(!persons_global_reduced[kPersonAvg]) persons_global_reduced[kPersonAvg] = make_shared<pr::Person>();
@@ -364,6 +371,7 @@ class ofApp : public ofBaseApp {
         str << "fps: " << ofGetFrameRate();
         ImGui::Text(str.str().c_str());
 
+        ml.drawGui();
 
         gui.end();
     }

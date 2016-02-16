@@ -67,9 +67,9 @@ struct Person {
     }
     
     
-	Person() {
-	};
-
+//	Person() {
+//	};
+//
     // other info? hand states, lean, restrictedness etc
 
 

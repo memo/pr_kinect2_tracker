@@ -30,6 +30,12 @@
 		F0811D8E1C7219510073C932 /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0811D791C7219510073C932 /* imgui_demo.cpp */; };
 		F0811D8F1C7219510073C932 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0811D7A1C7219510073C932 /* imgui_draw.cpp */; };
 		F0811D901C7219510073C932 /* ofxImGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0811D7D1C7219510073C932 /* ofxImGui.cpp */; };
+		F0811E261C73499F0073C932 /* fann.c in Sources */ = {isa = PBXBuildFile; fileRef = F0811E061C73499F0073C932 /* fann.c */; };
+		F0811E271C73499F0073C932 /* fann_cascade.c in Sources */ = {isa = PBXBuildFile; fileRef = F0811E071C73499F0073C932 /* fann_cascade.c */; };
+		F0811E281C73499F0073C932 /* fann_error.c in Sources */ = {isa = PBXBuildFile; fileRef = F0811E081C73499F0073C932 /* fann_error.c */; };
+		F0811E291C73499F0073C932 /* fann_io.c in Sources */ = {isa = PBXBuildFile; fileRef = F0811E091C73499F0073C932 /* fann_io.c */; };
+		F0811E2A1C73499F0073C932 /* fann_train.c in Sources */ = {isa = PBXBuildFile; fileRef = F0811E0A1C73499F0073C932 /* fann_train.c */; };
+		F0811E2B1C73499F0073C932 /* fann_train_data.c in Sources */ = {isa = PBXBuildFile; fileRef = F0811E0B1C73499F0073C932 /* fann_train_data.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,6 +129,30 @@
 		F0811D801C7219510073C932 /* stb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_textedit.h; sourceTree = "<group>"; };
 		F0811D811C7219510073C932 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_truetype.h; sourceTree = "<group>"; };
 		F0811D821C7219510073C932 /* ThemeTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThemeTest.h; sourceTree = "<group>"; };
+		F0811E021C72AF420073C932 /* ml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ml.h; sourceTree = "<group>"; };
+		F0811E061C73499F0073C932 /* fann.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fann.c; sourceTree = "<group>"; };
+		F0811E071C73499F0073C932 /* fann_cascade.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fann_cascade.c; sourceTree = "<group>"; };
+		F0811E081C73499F0073C932 /* fann_error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fann_error.c; sourceTree = "<group>"; };
+		F0811E091C73499F0073C932 /* fann_io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fann_io.c; sourceTree = "<group>"; };
+		F0811E0A1C73499F0073C932 /* fann_train.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fann_train.c; sourceTree = "<group>"; };
+		F0811E0B1C73499F0073C932 /* fann_train_data.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fann_train_data.c; sourceTree = "<group>"; };
+		F0811E101C73499F0073C932 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		F0811E111C73499F0073C932 /* doublefann.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = doublefann.h; sourceTree = "<group>"; };
+		F0811E121C73499F0073C932 /* fann.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann.h; sourceTree = "<group>"; };
+		F0811E131C73499F0073C932 /* fann_activation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_activation.h; sourceTree = "<group>"; };
+		F0811E141C73499F0073C932 /* fann_cascade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_cascade.h; sourceTree = "<group>"; };
+		F0811E151C73499F0073C932 /* fann_cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_cpp.h; sourceTree = "<group>"; };
+		F0811E161C73499F0073C932 /* fann_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_data.h; sourceTree = "<group>"; };
+		F0811E171C73499F0073C932 /* fann_data_cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_data_cpp.h; sourceTree = "<group>"; };
+		F0811E181C73499F0073C932 /* fann_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_error.h; sourceTree = "<group>"; };
+		F0811E191C73499F0073C932 /* fann_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_internal.h; sourceTree = "<group>"; };
+		F0811E1A1C73499F0073C932 /* fann_io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_io.h; sourceTree = "<group>"; };
+		F0811E1B1C73499F0073C932 /* fann_train.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_train.h; sourceTree = "<group>"; };
+		F0811E1C1C73499F0073C932 /* fann_training_data_cpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fann_training_data_cpp.h; sourceTree = "<group>"; };
+		F0811E1D1C73499F0073C932 /* fixedfann.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fixedfann.h; sourceTree = "<group>"; };
+		F0811E1E1C73499F0073C932 /* floatfann.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = floatfann.h; sourceTree = "<group>"; };
+		F0811E1F1C73499F0073C932 /* parallel_fann.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parallel_fann.h; sourceTree = "<group>"; };
+		F0811E201C73499F0073C932 /* parallel_fann.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = parallel_fann.hpp; sourceTree = "<group>"; };
 		F4F5B6B8BA2BD52C646ED908 /* OscException.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = OscException.h; path = ../../../addons/ofxOsc/libs/oscpack/src/osc/OscException.h; sourceTree = SOURCE_ROOT; };
 		F7FBC56859535E597B24BB91 /* NetworkingUtils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = NetworkingUtils.h; path = ../../../addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -251,11 +281,13 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				F0811D941C72ABAC0073C932 /* fann */,
 				F0811D401C7219330073C932 /* main.cpp */,
 				F0811D411C7219330073C932 /* OscSender.h */,
 				F0811D421C7219330073C932 /* Person.h */,
 				F0811D431C7219330073C932 /* Receiver.cpp */,
 				F0811D441C7219330073C932 /* Receiver.h */,
+				F0811E021C72AF420073C932 /* ml.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -313,6 +345,54 @@
 				F0811D821C7219510073C932 /* ThemeTest.h */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		F0811D941C72ABAC0073C932 /* fann */ = {
+			isa = PBXGroup;
+			children = (
+				F0811E031C73499F0073C932 /* src */,
+			);
+			name = fann;
+			path = ml/fann;
+			sourceTree = "<group>";
+		};
+		F0811E031C73499F0073C932 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				F0811E061C73499F0073C932 /* fann.c */,
+				F0811E071C73499F0073C932 /* fann_cascade.c */,
+				F0811E081C73499F0073C932 /* fann_error.c */,
+				F0811E091C73499F0073C932 /* fann_io.c */,
+				F0811E0A1C73499F0073C932 /* fann_train.c */,
+				F0811E0B1C73499F0073C932 /* fann_train_data.c */,
+				F0811E0E1C73499F0073C932 /* include */,
+			);
+			name = src;
+			path = src/fann/src;
+			sourceTree = SOURCE_ROOT;
+		};
+		F0811E0E1C73499F0073C932 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				F0811E101C73499F0073C932 /* config.h */,
+				F0811E111C73499F0073C932 /* doublefann.h */,
+				F0811E121C73499F0073C932 /* fann.h */,
+				F0811E131C73499F0073C932 /* fann_activation.h */,
+				F0811E141C73499F0073C932 /* fann_cascade.h */,
+				F0811E151C73499F0073C932 /* fann_cpp.h */,
+				F0811E161C73499F0073C932 /* fann_data.h */,
+				F0811E171C73499F0073C932 /* fann_data_cpp.h */,
+				F0811E181C73499F0073C932 /* fann_error.h */,
+				F0811E191C73499F0073C932 /* fann_internal.h */,
+				F0811E1A1C73499F0073C932 /* fann_io.h */,
+				F0811E1B1C73499F0073C932 /* fann_train.h */,
+				F0811E1C1C73499F0073C932 /* fann_training_data_cpp.h */,
+				F0811E1D1C73499F0073C932 /* fixedfann.h */,
+				F0811E1E1C73499F0073C932 /* floatfann.h */,
+				F0811E1F1C73499F0073C932 /* parallel_fann.h */,
+				F0811E201C73499F0073C932 /* parallel_fann.hpp */,
+			);
+			path = include;
 			sourceTree = "<group>";
 		};
 		FF8CDF57858E9B94E3237115 /* ip */ = {
@@ -431,6 +511,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				72A929D3561B8232A182ABFC /* ofxOscBundle.cpp in Sources */,
+				F0811E2A1C73499F0073C932 /* fann_train.c in Sources */,
 				F0811D8F1C7219510073C932 /* imgui_draw.cpp in Sources */,
 				5864AD82E20F15536D054EA3 /* ofxOscMessage.cpp in Sources */,
 				F0811D901C7219510073C932 /* ofxImGui.cpp in Sources */,
@@ -438,16 +519,21 @@
 				4ADB88E2FB52E76A471065DE /* ofxOscParameterSync.cpp in Sources */,
 				640279EE111671BD026CB013 /* ofxOscReceiver.cpp in Sources */,
 				F0811D891C7219510073C932 /* BaseEngine.cpp in Sources */,
+				F0811E2B1C73499F0073C932 /* fann_train_data.c in Sources */,
 				F0811D8B1C7219510073C932 /* EngineGLFW.cpp in Sources */,
 				510CAFE035E576A4E1502D52 /* UdpSocket.cpp in Sources */,
 				F0811D461C7219330073C932 /* Receiver.cpp in Sources */,
+				F0811E271C73499F0073C932 /* fann_cascade.c in Sources */,
 				67FE4C7B15C2F0478C8126C2 /* NetworkingUtils.cpp in Sources */,
 				F0811D8D1C7219510073C932 /* imgui.cpp in Sources */,
 				ADE367465D2A8EBAD4C7A8D9 /* IpEndpointName.cpp in Sources */,
 				F0811D8E1C7219510073C932 /* imgui_demo.cpp in Sources */,
 				879A251454401BC0B6E4F238 /* OscTypes.cpp in Sources */,
 				F0811D8A1C7219510073C932 /* BaseTheme.cpp in Sources */,
+				F0811E261C73499F0073C932 /* fann.c in Sources */,
 				C4782ECC372420ACE0615B74 /* OscPrintReceivedElements.cpp in Sources */,
+				F0811E291C73499F0073C932 /* fann_io.c in Sources */,
+				F0811E281C73499F0073C932 /* fann_error.c in Sources */,
 				F0811D451C7219330073C932 /* main.cpp in Sources */,
 				62545D179C94265CA1389D4A /* OscOutboundPacketStream.cpp in Sources */,
 				F0811D8C1C7219510073C932 /* EngineOpenGLES.cpp in Sources */,
