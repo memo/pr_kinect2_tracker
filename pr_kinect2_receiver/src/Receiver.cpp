@@ -40,7 +40,7 @@ void Receiver::parseOsc() {
 			// if new user found and calibrated, add to map
 			if (!persons[user_id]) {
 				ofLogWarning() << "Receiver::parseOsc creating person " << user_id;
-				persons[user_id] = make_shared<Person>();
+				persons[user_id] = make_shared<Person>(ofToString(_index) + "." + ofToString(user_id));
 			}
 
             // this is the person we're receiving info for

@@ -182,11 +182,8 @@ class ofApp : public ofBaseApp {
             persons_global_reduced[kPersonRight] = persons_global_all.back();
             
             
-            ml.update(persons_global_reduced);
-            
-
             // calculate average person (allocate first if nessecary)
-            if(!persons_global_reduced[kPersonAvg]) persons_global_reduced[kPersonAvg] = make_shared<pr::Person>();
+            if(!persons_global_reduced[kPersonAvg]) persons_global_reduced[kPersonAvg] = make_shared<pr::Person>("average");
 
             if(persons_global_reduced[kPersonAvg] && persons_global_reduced[kPersonLeft] && persons_global_reduced[kPersonRight]) {
                 for(auto&& jkv : persons_global_reduced[kPersonAvg]->joints) {
@@ -202,6 +199,11 @@ class ofApp : public ofBaseApp {
                     joint.springy_pos   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_pos + persons_global_reduced[kPersonRight]->joints[jointName].springy_pos)/2;
                     joint.springy_vel   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_vel + persons_global_reduced[kPersonRight]->joints[jointName].springy_vel)/2;
                 }
+
+                
+                // machine learning update
+                ml.update(persons_global_reduced);
+                
             } else {
                 ofLogError() << "App::update one or more persons == NULL";
             }

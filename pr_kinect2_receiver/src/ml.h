@@ -174,9 +174,10 @@ namespace pr {
             bool enabled = false;
             bool do_record = false;
             bool do_predict = false;
-            int input_person_id = 2;            // input person
+            int input_person_id = 2;            // input person, will be present during training and prediction
+            int target_person_id = 1;           // target person, will be 'imagined'
+            int output_person_id = 0;           // slot to write to
             bool input_do_local = true;         // whether to do pos relative to waist or not
-            int target_person_id = 1;           // the 'imaginary' person (i.e. the trainer)
             bool target_do_local = true;
             vector<string> joints_to_include;   // vector of included joints
             
@@ -193,10 +194,10 @@ namespace pr {
             void update(vector<Person::Ptr>& persons) {
                 if(!enabled) return;
                 
-                Person::Ptr& input_person = persons[input_person_id];
+                Person::Ptr input_person = persons[input_person_id];
                 if(input_person) input_vec = person_to_representation(input_person, joints_to_include, input_do_local);
                 
-                Person::Ptr& target_person = persons[target_person_id];
+                Person::Ptr target_person = persons[target_person_id];
                 if(target_person) target_vec = person_to_representation(target_person, joints_to_include, target_do_local);
                 
                 if(input_person) {
@@ -208,15 +209,17 @@ namespace pr {
                         }
                     } else if(do_predict) {
                         // get prediction
-                        model.predict(input_vec, target_vec);
+                        model.predict(input_vec, output_vec);
+                        
+                        Person::Ptr& output_person = persons[output_person_id];
                         
                         // make sure we have a unique person to write to
-                        if(!target_person || target_person == input_person) {
-                            ofLogWarning() << "ml::Trainer::update predict - target null or same as input, reallocating";
-                            target_person = make_shared<pr::Person>();
+                        if(!output_person || output_person == input_person) {
+                            ofLogWarning() << "ml::Trainer::update predict - output null or same as input, reallocating";
+                            output_person = persons[output_person_id] = make_shared<pr::Person>("ml_output");
                         }
                         
-                        representation_to_person(target_person, joints_to_include, target_do_local, target_vec);
+                        representation_to_person(output_person, joints_to_include, target_do_local, output_vec);
                     }
                 } else {
                     ofLogError() << "ml::Trainer::update - input person null";
@@ -236,28 +239,30 @@ namespace pr {
             
             void draw_gui() {
                 static ImVec2 button_size(160, 20);
-                ImGui::SetNextWindowSize(ImVec2(350, ofGetHeight()));
-                ImGui::SetNextWindowPos(ImVec2(ofGetWidth() - 350, 0));
+                ImGui::SetNextWindowSize(ImVec2(400, ofGetHeight()));
+                ImGui::SetNextWindowPos(ImVec2(ofGetWidth() - 400, 0));
                 
                 
                 // start new window
                 ImGui::Begin("ML");
-                if(ImGui::Checkbox("Enabled", &enabled)) do_predict = do_record = false;
-                ImGui::SameLine();
-                if(ImGui::Checkbox("Record", &do_record)) do_predict = false;
-                ImGui::SameLine();
-                if(ImGui::Checkbox("Predict", &do_predict)) do_record = false;
+                ImGui::Columns(3, "mycolumns");
+//                ImGui::Separator();
                 
+                if(ImGui::Checkbox("Enabled", &enabled)) do_predict = do_record = false;
                 ImGui::InputInt("input_person_id", &input_person_id);
                 ImGui::Checkbox("input_do_local", &input_do_local);
+                ImGui::NextColumn();
+                
+                if(ImGui::Checkbox("Record", &do_record)) do_predict = false;
                 ImGui::InputInt("target_person_id", &target_person_id);
                 ImGui::Checkbox("target_do_local", &target_do_local);
+                ImGui::NextColumn();
+
+                if(ImGui::Checkbox("Predict", &do_predict)) do_record = false;
+                ImGui::InputInt("output_person_id", &output_person_id);
+                ImGui::Columns(1);
                 
-                //                ImGui::SliderInt("input_dim", &model.input_dim, 1, 50);
-                //                ImGui::SliderInt("hidden_dim", &model.hidden_dim, 1, 50);
-                //                ImGui::SliderInt("output_dim", &model.output_dim, 1, 50);
-                
-                if(ImGui::Button("init", button_size)) init();
+                if(ImGui::Button("init", button_size)) init(); ImGui::SameLine();
                 if(ImGui::Button("train", button_size)) train();
                 
                 stringstream str;
@@ -269,9 +274,11 @@ namespace pr {
                 
                 if(ImGui::CollapsingHeader("Viz", NULL, true, true)) {
                     //                    void ImGui::PlotHistogram(const char* label, const float* values, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size, int stride)
-                    
-                    if(!input_vec.empty()) ImGui::PlotHistogram("input_vec", input_vec.data(), input_vec.size(), 0, NULL, -2.0f, 2.0f, ImVec2(0,80));
-                    if(!target_vec.empty()) ImGui::PlotHistogram("target_vec", target_vec.data(), target_vec.size(), 0, NULL, -2.0f, 2.0f, ImVec2(0,80));
+                    static float begin = -2, end = 2;
+                    ImGui::DragFloatRange2("range", &begin, &end, 0.01f);//, 0.0f, 100.0f, "Min: %.1f", "Max: %.1f");
+                    if(!input_vec.empty()) ImGui::PlotHistogram("input_vec", input_vec.data(), input_vec.size(), 0, NULL, begin, end, ImVec2(0,80));
+                    if(!target_vec.empty()) ImGui::PlotHistogram("target_vec", target_vec.data(), target_vec.size(), 0, NULL, begin, end, ImVec2(0,80));
+                    if(!output_vec.empty()) ImGui::PlotHistogram("output_vec", output_vec.data(), output_vec.size(), 0, NULL, begin, end, ImVec2(0,80));
                 }
                 
                 if(ImGui::CollapsingHeader("Representation", NULL, true, true)) {
@@ -326,7 +333,7 @@ namespace pr {
             
         protected:
             Model model;
-            DataVector input_vec, target_vec;  // cached vectors used for prediction
+            DataVector input_vec, target_vec, output_vec;  // cached vectors
             
             static vector<string> update_representation_vec(const map<string, bool>& joints_bools_map) {
                 ofLogNotice() << "ml::Trainer::update_representation_vec";

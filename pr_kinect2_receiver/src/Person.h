@@ -18,22 +18,23 @@ template<typename T> struct Smoother {
 
 
 struct JointInfo {
-    float confidence;       // 0..1 confidence rating
-    Smoother<ofVec3f> pos;  // world position, with smoothing
-    ofQuaternion quat;      // world orientation as quat
-    ofVec3f euler;          // world orienation as euler
-    Smoother<ofVec3f> vel;  // velocity vector, with smoothing
-    float speed;            // speed, with smoothing
-    ofVec3f vec;            // vector to parent
-//	string parentJointName; // name of the parent joint for vec
-    ofVec3f springy_pos;    // positions with springy behaviour applied
-    ofVec3f springy_vel;    // velocities with springy behaviour applied
+    float confidence = 0;       // 0..1 confidence rating
+    Smoother<ofVec3f> pos;      // world position, with smoothing
+    ofQuaternion quat;          // world orientation as quat
+    ofVec3f euler;              // world orienation as euler
+    Smoother<ofVec3f> vel;      // velocity vector, with smoothing
+    float speed = 0;            // speed, with smoothing
+    ofVec3f vec;                // vector to parent
+    ofVec3f springy_pos;        // positions with springy behaviour applied
+    ofVec3f springy_vel;        // velocities with springy behaviour applied
 };
 
 
 struct Person {
-
 	typedef shared_ptr<Person> Ptr;
+    
+    // useful for debugging
+    string name;
 
     // keep alive for XXX frames
     int alive_counter = 0;
@@ -67,11 +68,12 @@ struct Person {
     }
     
     
-//	Person() {
-//	};
-//
-    // other info? hand states, lean, restrictedness etc
+    Person(string name):name(name) {
+        for(const auto& joint_name : joint_names) joints[joint_name] = JointInfo();
+    }
 
+    
+    // other info? hand states, lean, restrictedness etc
 
     /*
     // diffs to another person. useful for detecting if two people from different kinects are the same person or not
