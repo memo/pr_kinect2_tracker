@@ -351,11 +351,11 @@ class ofApp : public ofBaseApp {
         
 
         if(ImGui::CollapsingHeader("Global Params", NULL, true, true)) {
-            ImGui::SliderFloat("pos smoothing", &pr::Receiver::pos_smoothing, 0, 1);
-            ImGui::SliderFloat("vel smoothing", &pr::Receiver::vel_smoothing, 0, 1);
-            ImGui::SliderFloat("spring strength", &pr::Receiver::spring_strength, 0, 1);
-            ImGui::SliderFloat("spring damping", &pr::Receiver::spring_damping, 0, 1);
-            ImGui::SliderInt("kill frame count", &pr::Receiver::kill_frame_count, 0, 200);
+            ImGui::DragFloat("pos smoothing", &pr::Receiver::pos_smoothing, 0.01, 0, 1);
+            ImGui::DragFloat("vel smoothing", &pr::Receiver::vel_smoothing, 0.01, 0, 1);
+            ImGui::DragFloat("spring strength", &pr::Receiver::spring_strength, 0.01, 0, 1);
+            ImGui::DragFloat("spring damping", &pr::Receiver::spring_damping, 0.01, 0, 1);
+            ImGui::DragInt("kill frame count", &pr::Receiver::kill_frame_count, 1);
             }
            
         for(auto&& receiver : receivers) {
@@ -373,11 +373,11 @@ class ofApp : public ofBaseApp {
             ImGui::Checkbox("show all persons", &display.show_all_persons);
             ImGui::Checkbox("show reduced persons", &display.show_reduced_persons);
 
-            ImGui::SliderFloat("jointRadius", &display.joint_radius, 0, 1);
+            ImGui::DragFloat("jointRadius", &display.joint_radius, 0.001, 0, 2);
             ImGui::Checkbox("show target pos", &display.show_target_pos);
             ImGui::Checkbox("show springy pos", &display.show_springy_pos);
             ImGui::Checkbox("show vel vector", &display.show_vel);
-            ImGui::SliderFloat("vel mult", &display.vel_mult, 0, 5);
+            ImGui::DragFloat("vel mult", &display.vel_mult, 0.01, 0, 2);
         }
               
         ImGui::End();
