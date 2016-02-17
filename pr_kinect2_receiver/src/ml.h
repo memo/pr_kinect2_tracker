@@ -13,6 +13,8 @@
 #include "ofxImGui.h"
 #include "Person.h"
 
+#include "VectorUtils.h"
+
 namespace pr {
     namespace ml {
         
@@ -22,7 +24,7 @@ namespace pr {
         public:
             FANN::neural_net net;
             
-            bool do_scaling         = false;
+            bool do_scaling         = true;
             int num_layers          = 3;
             int input_dim           = 9;
             int output_dim          = 9;
@@ -34,7 +36,7 @@ namespace pr {
             int epochs_per_report   = 100;
             
             
-            int size() {
+            int training_data_size() const {
                 if(input_dim <= 0 || output_dim <= 0) {
                     ofLogError() << "ml::Model::size - invalid dimensions";
                     return 0;
@@ -53,6 +55,10 @@ namespace pr {
                 ofLogNotice() << "ml::Model::clear_training_data";
                 inputs.clear();
                 targets.clear();
+                input_min_values.clear();
+                input_max_values.clear();
+                target_min_values.clear();
+                target_max_values.clear();
             }
             
             void save_training_data(string filename) {
@@ -91,8 +97,14 @@ namespace pr {
             }
             
             void train() {
+//                input_dim = 2;
+//                hidden_dim = 3;
+//                output_dim = 1;
+                do_scaling = false;
+//                
                 ofLogNotice() << "ml::Model::train " << "num_layers: " << num_layers << ", input_dim: " << input_dim << ", hidden_dim: " << hidden_dim << ", output_dim: " << output_dim;
                 // init network
+                
                 net.create_standard(num_layers, input_dim, hidden_dim, output_dim);
                 //        net.set_learning_rate(learning_rate);
                 //        net.set_learning_momentum(momentum);
@@ -102,18 +114,40 @@ namespace pr {
                 net.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
                 net.set_activation_function_output(FANN::SIGMOID_SYMMETRIC);
                 net.set_training_algorithm(FANN::TRAIN_RPROP);
+                net.print_parameters();
+                
+                if(training_data_size() == 0) {
+                    ofLogError() << " - no data, or input num samples doesn't match target num data";
+                    return;
+                }
+                
+                // scale training data
+                if(do_scaling) {
+                    msa::vector_utils::get_range(inputs, input_dim, input_min_values, input_max_values);
+                    msa::vector_utils::normalize(inputs, input_min_values, input_max_values, -1.0f, 1.0f, inputs);
+
+                    msa::vector_utils::get_range(targets, output_dim, target_min_values, target_max_values);
+                    msa::vector_utils::normalize(targets, target_min_values, target_max_values, -1.0f, 1.0f, targets);
+                    
+                    //                    net.set_scaling_params(training_data, -1, 1, -1, 1);
+                    //                    net.scale_train(training_data);
+                };
+                
+                // copy data across
+                training_data.set_train_data(inputs.size(), input_dim, inputs.data(), output_dim, targets.data());
+                save_training_data(ofToDataPath("training_data.txt"));
+//                if(training_data.read_train_from_file(ofToDataPath("xor.data"))) {
                 
                 
                 // Initialize and train the network with the data
                 net.init_weights(training_data);
-                
-                update_training_data();
                 
                 ofLogNotice() << "Max Epochs " << setw(8) << max_epochs << ". " << "Desired Error: " << left << desired_error << right << endl;
                 net.set_callback(print_callback, NULL);
                 net.train_on_data(training_data, max_epochs, epochs_per_report, desired_error);
                 
                 cout << endl << "Testing network." << endl;
+//                }
             }
             
             void predict(const DataVector& input_vec, DataVector& output_vec) {
@@ -121,7 +155,8 @@ namespace pr {
                 
                 fann_type* ret = net.run(const_cast<fann_type*>(input_vec.data()));
                 memcpy(output_vec.data(), ret, output_dim);
-                if(do_scaling) net.descale_output(output_vec.data());
+//                if(do_scaling) net.descale_output(output_vec.data());
+                if(do_scaling) msa::vector_utils::unnormalize(output_vec, target_min_values, target_max_values, -1.0f, 1.0f, output_vec);
             }
             
             
@@ -129,33 +164,11 @@ namespace pr {
             // training data
             FANN::training_data training_data;
             
-            // these are treated like tables, rather than 1d vectors
-            vector < fann_type > inputs;
-            vector < fann_type > targets;
+            // these are treated like tables, but stored as 1d vectors
+            DataVector inputs, targets;
             
-            void update_training_data() {
-                ofLogNotice() << "ml::Model::update_training_data ";
-                
-                if(inputs.size() == 0) {
-                    ofLogError() << " - no data";
-                    return;
-                }
-                
-                if(inputs.size() != targets.size()) {
-                    ofLogError() << " - input num data doesn't match target num data " << inputs.size() << " != " << targets.size();
-                    return;
-                }
-                
-                // copy data across
-                training_data.set_train_data(inputs.size(), input_dim, inputs.data(), output_dim, targets.data());
-                
-                // scale training data
-                if(do_scaling) {
-                    net.set_scaling_params(training_data, -1, 1, -1, 1);
-                    net.scale_train(training_data);
-                };
-            }
-            
+            // range for normalization and unnormalization
+            DataVector input_min_values, input_max_values, target_min_values, target_max_values;
             
             // Callback function that simply prints the information to cout
             static int print_callback(FANN::neural_net &net, FANN::training_data &train,
@@ -216,7 +229,7 @@ namespace pr {
                         // make sure we have a unique person to write to
                         if(!output_person || output_person == input_person) {
                             ofLogWarning() << "ml::Trainer::update predict - output null or same as input, reallocating";
-                            output_person = persons[output_person_id] = make_shared<pr::Person>("ml_output");
+                            output_person = persons[output_person_id] = make_shared<Person>("ml_output");
                         }
                         
                         representation_to_person(output_person, joints_to_include, target_do_local, output_vec);
@@ -246,7 +259,7 @@ namespace pr {
                 // start new window
                 ImGui::Begin("ML");
                 ImGui::Columns(3, "mycolumns");
-//                ImGui::Separator();
+                //                ImGui::Separator();
                 
                 if(ImGui::Checkbox("Enabled", &enabled)) do_predict = do_record = false;
                 ImGui::InputInt("input_person_id", &input_person_id);
@@ -257,7 +270,7 @@ namespace pr {
                 ImGui::InputInt("target_person_id", &target_person_id);
                 ImGui::Checkbox("target_do_local", &target_do_local);
                 ImGui::NextColumn();
-
+                
                 if(ImGui::Checkbox("Predict", &do_predict)) do_record = false;
                 ImGui::InputInt("output_person_id", &output_person_id);
                 ImGui::Columns(1);
@@ -269,7 +282,7 @@ namespace pr {
                 str << "input_dim: " << model.input_dim << endl;
                 str << "hidden_dim: " << model.hidden_dim << endl;
                 str << "output_dim: " << model.output_dim << endl;
-                str << "training samples: " << model.size() << endl;
+                str << "training samples: " << model.training_data_size() << endl;
                 ImGui::Text(str.str().c_str());
                 
                 if(ImGui::CollapsingHeader("Viz", NULL, true, true)) {

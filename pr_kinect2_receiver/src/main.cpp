@@ -55,6 +55,9 @@ class ofApp : public ofBaseApp {
 
     //--------------------------------------------------------------
     void setup() {
+        msa::vector_utils::test_2d<vector<float>, float>();
+        msa::vector_utils::test_flat<vector<float>, float>();
+        
         ofBackground(0);
         ofSetVerticalSync(true);
         ofSetFrameRate(30);
@@ -87,7 +90,7 @@ class ofApp : public ofBaseApp {
     //--------------------------------------------------------------
     void loadFromXml(string filename) {
 
-        // load xmml
+        // load xml
         ofXml xml(filename);
 
         // tell receivers to fetch their settings from loaded xml
