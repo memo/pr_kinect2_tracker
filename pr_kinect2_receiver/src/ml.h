@@ -22,8 +22,6 @@ namespace pr {
         
         class Model {
         public:
-            FANN::neural_net net;
-            
             bool do_scaling         = true;
             int num_layers          = 3;
             int input_dim           = 9;
@@ -35,6 +33,11 @@ namespace pr {
             int max_epochs          = 10000;
             int epochs_per_report   = 100;
             
+            
+            void init() {
+                trained = false;
+                clear_training_data();
+            }
             
             int training_data_size() const {
                 if(input_dim <= 0 || output_dim <= 0) {
@@ -97,11 +100,6 @@ namespace pr {
             }
             
             void train() {
-//                input_dim = 2;
-//                hidden_dim = 3;
-//                output_dim = 1;
-                do_scaling = false;
-//                
                 ofLogNotice() << "ml::Model::train " << "num_layers: " << num_layers << ", input_dim: " << input_dim << ", hidden_dim: " << hidden_dim << ", output_dim: " << output_dim;
                 // init network
                 
@@ -114,7 +112,7 @@ namespace pr {
                 net.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
                 net.set_activation_function_output(FANN::SIGMOID_SYMMETRIC);
                 net.set_training_algorithm(FANN::TRAIN_RPROP);
-                net.print_parameters();
+//                net.print_parameters();
                 
                 if(training_data_size() == 0) {
                     ofLogError() << " - no data, or input num samples doesn't match target num data";
@@ -134,10 +132,8 @@ namespace pr {
                 };
                 
                 // copy data across
-                training_data.set_train_data(inputs.size(), input_dim, inputs.data(), output_dim, targets.data());
+                training_data.set_train_data(training_data_size(), input_dim, inputs.data(), output_dim, targets.data());
                 save_training_data(ofToDataPath("training_data.txt"));
-//                if(training_data.read_train_from_file(ofToDataPath("xor.data"))) {
-                
                 
                 // Initialize and train the network with the data
                 net.init_weights(training_data);
@@ -146,11 +142,14 @@ namespace pr {
                 net.set_callback(print_callback, NULL);
                 net.train_on_data(training_data, max_epochs, epochs_per_report, desired_error);
                 
+                trained = true;
+                
                 cout << endl << "Testing network." << endl;
-//                }
             }
             
             void predict(const DataVector& input_vec, DataVector& output_vec) {
+                if(!trained) return;
+                
                 if(output_vec.size() != output_dim) output_vec.resize(output_dim);
                 
                 fann_type* ret = net.run(const_cast<fann_type*>(input_vec.data()));
@@ -161,7 +160,9 @@ namespace pr {
             
             
         protected:
-            // training data
+            bool trained = false;
+            
+            FANN::neural_net net;
             FANN::training_data training_data;
             
             // these are treated like tables, but stored as 1d vectors
@@ -201,6 +202,13 @@ namespace pr {
                 ofLogNotice() << "ml::Trainer::init ";
                 model.input_dim = model.output_dim = model.hidden_dim = joints_to_include.size() * 3;
                 model.clear_training_data();
+                model.init();
+                
+                input_vec.clear();
+                target_vec.clear();
+                output_vec.clear();
+                
+                do_record = do_predict = false;
             }
             
             
@@ -287,7 +295,7 @@ namespace pr {
                 
                 if(ImGui::CollapsingHeader("Viz", NULL, true, true)) {
                     //                    void ImGui::PlotHistogram(const char* label, const float* values, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size, int stride)
-                    static float begin = -2, end = 2;
+                    static float begin = -1, end = 1;
                     ImGui::DragFloatRange2("range", &begin, &end, 0.01f);//, 0.0f, 100.0f, "Min: %.1f", "Max: %.1f");
                     if(!input_vec.empty()) ImGui::PlotHistogram("input_vec", input_vec.data(), input_vec.size(), 0, NULL, begin, end, ImVec2(0,80));
                     if(!target_vec.empty()) ImGui::PlotHistogram("target_vec", target_vec.data(), target_vec.size(), 0, NULL, begin, end, ImVec2(0,80));
