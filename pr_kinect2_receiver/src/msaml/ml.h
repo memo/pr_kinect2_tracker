@@ -23,9 +23,11 @@ namespace pr {
     namespace ml {
         
         //        typedef vector<fann_type> DataVector;
-
-        typedef GRT::VectorFloat DataVector;
+        
         typedef GRT::Float DataType;
+        typedef GRT::VectorFloat DataVector;
+//        typedef float DataType;
+//        typedef vector<DataType> DataVector;
         typedef msa::ml::Model<DataVector, DataType> Model;
         typedef msa::ml::MLImplGrt<DataVector, DataType> MLImpl;
         
@@ -136,9 +138,21 @@ namespace pr {
                     //                    void ImGui::PlotHistogram(const char* label, const float* values, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size, int stride)
                     static float begin = -1, end = 1;
                     ImGui::DragFloatRange2("range", &begin, &end, 0.01f);//, 0.0f, 100.0f, "Min: %.1f", "Max: %.1f");
-//                    if(!input_vec.empty()) ImGui::PlotHistogram("input_vec", input_vec.data(), input_vec.size(), 0, NULL, begin, end, ImVec2(0,80));
-//                    if(!target_vec.empty()) ImGui::PlotHistogram("target_vec", target_vec.data(), target_vec.size(), 0, NULL, begin, end, ImVec2(0,80));
-//                    if(!output_vec.empty()) ImGui::PlotHistogram("output_vec", output_vec.data(), output_vec.size(), 0, NULL, begin, end, ImVec2(0,80));
+                    static vector<float> temp; // this is stupid that I can't get GRT to work with floats!
+                    if(!input_vec.empty()) {
+                        msa::vector_utils::convert(input_vec, temp);
+                        ImGui::PlotHistogram("input_vec", temp.data(), temp.size(), 0, NULL, begin, end, ImVec2(0,80));
+                    }
+                    
+                    if(!target_vec.empty()) {
+                        msa::vector_utils::convert(target_vec, temp);
+                        ImGui::PlotHistogram("target_vec", temp.data(), temp.size(), 0, NULL, begin, end, ImVec2(0,80));
+                    }
+                    
+                    if(!output_vec.empty()) {
+                        msa::vector_utils::convert(output_vec, temp);
+                        ImGui::PlotHistogram("output_vec", temp.data(), temp.size(), 0, NULL, begin, end, ImVec2(0,80));
+                    }
                 }
                 
                 if(ImGui::CollapsingHeader("Representation", NULL, true, true)) {

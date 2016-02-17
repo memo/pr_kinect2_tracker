@@ -32,6 +32,15 @@ namespace msa {
         }
         
         
+        //-------------------------------------------------------
+        // convert to another type
+        template <typename Vector1, typename Vector2>
+        void convert(const Vector1& v_in, Vector2& v_out) {
+            int n = v_in.size();
+            if(v_out.size() != n) v_out.resize(n);
+            for(int i=0; i<n; i++) v_out[i] = v_in[i];
+        }
+        
         
         //-------------------------------------------------------
         // return number of bytes
