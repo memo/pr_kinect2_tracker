@@ -39,7 +39,6 @@ namespace pr {
                 ofLogNotice() << "ml::Trainer::init ";
                 int dim = joints_to_include.size() * 3;
                 model = make_unique<Model>("model", dim, dim, make_shared<MLImpl>());
-                model->get_params().hidden_dim = hidden_dim;
                 
                 input_vec.clear();
                 target_vec.clear();
@@ -70,11 +69,16 @@ namespace pr {
                         // get prediction
                         model->predict(input_vec, output_vec);
                         
+                        if(persons.size() < output_person_id) {
+                            ofLogWarning() << "ml::Trainer::update predict - not enough persons for output person";
+                            persons.resize(output_person_id+1);
+                        }
+                        
                         Person::Ptr& output_person = persons[output_person_id];
                         
                         // make sure we have a unique person to write to
                         if(!output_person || output_person == input_person) {
-                            ofLogWarning() << "ml::Trainer::update predict - output null or same as input, reallocating";
+                            ofLogWarning() << "ml::Trainer::update predict - output person null or same as input, reallocating";
                             output_person = persons[output_person_id] = make_shared<Person>("ml_output");
                         }
                         
@@ -121,7 +125,10 @@ namespace pr {
                 ImGui::InputInt("output_person_id", &output_person_id);
                 ImGui::Columns(1);
                 
+                static int hidden_dim = 3;
                 ImGui::InputInt("hidden_dim", &hidden_dim, 1, 10);
+                if(model) model->get_params().hidden_dim = hidden_dim;
+                
                 if(ImGui::Button("init", button_size)) init(); ImGui::SameLine();
                 if(ImGui::Button("train", button_size)) train();
                 
@@ -153,6 +160,12 @@ namespace pr {
                         msa::vector_utils::convert(output_vec, temp);
                         ImGui::PlotHistogram("output_vec", temp.data(), temp.size(), 0, NULL, begin, end, ImVec2(0,80));
                     }
+                    
+                    if(!target_vec.empty() && output_vec.size() == target_vec.size()) {
+                        for(int i=0; i<target_vec.size(); i++) temp[i] = target_vec[i] - output_vec[i];
+                        ImGui::PlotHistogram("diff_vec", temp.data(), temp.size(), 0, NULL, begin, end, ImVec2(0,80));
+                    }
+                    
                 }
                 
                 if(ImGui::CollapsingHeader("Representation", NULL, true, true)) {
@@ -212,7 +225,6 @@ namespace pr {
             int input_person_id = 2;            // input person, will be present during training and prediction
             int target_person_id = 1;           // target person, will be 'imagined'
             int output_person_id = 0;           // slot to write to
-            int hidden_dim = 3;
             bool input_do_local = true;         // whether to do pos relative to waist or not
             bool target_do_local = true;
             vector<string> joints_to_include;   // vector of included joints
