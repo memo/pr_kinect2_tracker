@@ -8,7 +8,7 @@
 // Created by Memo Akten, www.memo.tv
 //
 //
-// Stores a single training data point as an input+output pair
+// Stores a set of training data points as an input+output pairs
 //
 //
 
@@ -35,12 +35,12 @@ namespace msa {
 		class TrainingData {
         public:
 
-            float normalize_min = -1;
-            float normalize_max = 1;
+            T normalize_min = -1;
+            T normalize_max = 1;
 
 			// set input output dimensions
 			void set_dimensions(int input_dim, int output_dim);
-
+            
 			// add single data point to the training set
             void add_sample(const DataVector& input_vec, const DataVector& output_vec);
 
@@ -51,8 +51,15 @@ namespace msa {
 			bool save(const std::string path) const;
 			bool load(const std::string path);
 
+            // update min/max values
+            void calc_range();
+            
 			// number of data samples
             int size() const { return (int)_input_vectors.size(); }
+
+            // getters
+            int get_input_dim() const { return _input_dim; }
+            int get_output_dim() const { return _output_dim; }
             
             const std::vector<DataVector>& get_input_vectors() const { return _input_vectors; }
             const std::vector<DataVector>& get_output_vectors() const { return _output_vectors; }
@@ -64,8 +71,6 @@ namespace msa {
             const DataVector& get_input_max_values() const { return _input_max; }
             const DataVector& get_output_min_values() const { return _output_min; }
             const DataVector& get_output_max_values() const { return _output_max; }
-
-            void calc_range();
 
 			// get info
             std::string to_string(std::string separator = " | ", bool verbose = false) const;

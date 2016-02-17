@@ -7,17 +7,14 @@
  */
 #pragma once
 
-//#include "floatfann.h"
-//#include "fann_cpp.h"
-//
 #include "ofxImGui.h"
 #include "Person.h"
 
 #include "VectorUtils.h"
 
+#include "TrainingData.h"
 //#include "MLImplFann.h"
 #include "MLImplGrt.h"
-#include "Model.h"
 
 namespace pr {
     namespace ml {
@@ -26,30 +23,40 @@ namespace pr {
         
         typedef GRT::Float DataType;
         typedef GRT::VectorFloat DataVector;
-//        typedef float DataType;
-//        typedef vector<DataType> DataVector;
-        typedef msa::ml::Model<DataVector, DataType> Model;
+        //        typedef float DataType;
+        //        typedef vector<DataType> DataVector;
+        //        typedef msa::ml::Model<DataVector, DataType> Model;
         typedef msa::ml::MLImplGrt<DataVector, DataType> MLImpl;
         
-        class Trainer {
+        class Manager {
         public:
             // TODO: add noise while recording
             
             void init() {
-                ofLogNotice() << "ml::Trainer::init ";
-                int dim = joints_to_include.size() * 3;
-                model = make_unique<Model>("model", dim, dim, make_shared<MLImpl>());
+                ofLogNotice() << "ml::Main:init ";
+                int dim = joints_to_include.size() * 3; // xyz
+                
+                model_params.input_dim = model_params.output_dim = model_params.hidden_dims[0] = dim;
+                
+                training_data.set_dimensions(dim, dim);
                 
                 input_vec.clear();
                 target_vec.clear();
                 output_vec.clear();
                 
                 do_record = do_predict = false;
+                
+                trained = false;
             }
             
             
             void update(vector<Person::Ptr>& persons) {
-                if(!enabled || !model) return;
+                if(!enabled) return;
+                
+                if(num_hidden_layers != model_params.hidden_dims.size()) {
+                    ofLogWarning() << "ml::Main:update - setting hidden_dims size to " << num_hidden_layers;
+                    model_params.hidden_dims.resize(num_hidden_layers);
+                }
                 
                 Person::Ptr input_person = persons[input_person_id];
                 if(input_person) input_vec = person_to_representation(input_person, joints_to_include, input_do_local);
@@ -60,17 +67,16 @@ namespace pr {
                 if(input_person) {
                     if(do_record) {
                         if(target_person) {
-                            model->set_output_vector(target_vec);
-                            model->add_training_data(input_vec);
+                            training_data.add_sample(input_vec, target_vec);
                         } else {
-                            ofLogError() << "ml::Trainer::update record - target person null";
+                            ofLogError() << "ml::Main:update record - target person null";
                         }
                     } else if(do_predict) {
                         // get prediction
-                        model->predict(input_vec, output_vec);
+                        predict(input_vec, output_vec);
                         
-                        if(persons.size() < output_person_id) {
-                            ofLogWarning() << "ml::Trainer::update predict - not enough persons for output person";
+                        if(output_person_id >= persons.size()) {
+                            ofLogWarning() << "ml::Main:update predict - not enough persons for output person";
                             persons.resize(output_person_id+1);
                         }
                         
@@ -78,26 +84,61 @@ namespace pr {
                         
                         // make sure we have a unique person to write to
                         if(!output_person || output_person == input_person) {
-                            ofLogWarning() << "ml::Trainer::update predict - output person null or same as input, reallocating";
+                            ofLogWarning() << "ml::Main:update predict - output person null or same as input, reallocating";
                             output_person = persons[output_person_id] = make_shared<Person>("ml_output");
                         }
                         
                         representation_to_person(output_person, joints_to_include, target_do_local, output_vec);
                     }
                 } else {
-                    ofLogError() << "ml::Trainer::update - input person null";
+                    ofLogError() << "ml::Main:update - input person null";
                 }
             }
             
-            void train() {
-                ofLogNotice() << "ml::Trainer::train ";
+            
+            void predict(const DataVector& input_vector, DataVector& output_vector) {
+                if(!enabled || !trained) return;
                 
-                if(!enabled || !model) return;
+                if (input_vector.size() != model_params.input_dim) {
+                    ofLogError() << "ml::Main::predict - data dimensions does not match input dimensions: " << model_params.input_dim;
+                    return;
+                }
+                
+                // if trained, predict output
+                output_vector.resize(model_params.output_dim);
+                
+                DataVector input_vector_norm(input_vector.size());
+                DataVector output_vector_norm(output_vector.size());
+                
+                // normalize input
+                msa::vector_utils::normalize(input_vector, training_data.get_input_min_values(), training_data.get_input_max_values(), training_data.normalize_min, training_data.normalize_max, input_vector_norm);
+                
+                // run network
+                ml_impl.predict(input_vector_norm, output_vector_norm);
+                
+                // unnormalize output
+                msa::vector_utils::unnormalize(output_vector_norm, training_data.get_output_min_values(), training_data.get_output_max_values(), training_data.normalize_min, training_data.normalize_max, output_vector);
+            }
+            
+            
+            
+            void train() {
+                if(!enabled) return;
+                
+                ofLogNotice() << "ml::Main:train ";
                 
                 do_record = do_predict = false;
                 
-                model->train();
+                if (training_data.size() > 0) {
+                    training_data.calc_range();
+                    trained = ml_impl.train(training_data, model_params, train_params);
+                    if(trained) ofLogNotice() << "ml::Main:train - success";
+                    else ofLogNotice() << "ml::Main:train - error";
+                } else {
+                    ofLogWarning() << "ml::Main:train - no data";
+                }
             }
+            
             
             
             void draw_gui() {
@@ -108,7 +149,7 @@ namespace pr {
                 
                 // start new window
                 ImGui::Begin("ML");
-                ImGui::Columns(3, "mycolumns");
+                ImGui::Columns(3);
                 //                ImGui::Separator();
                 
                 if(ImGui::Checkbox("Enabled", &enabled)) do_predict = do_record = false;
@@ -125,27 +166,49 @@ namespace pr {
                 ImGui::InputInt("output_person_id", &output_person_id);
                 ImGui::Columns(1);
                 
-                static int hidden_dim = 3;
-                ImGui::InputInt("hidden_dim", &hidden_dim, 1, 10);
-                if(model) model->get_params().hidden_dim = hidden_dim;
+                
+                if(ImGui::CollapsingHeader("Model Parameters", NULL, true, true)) {
+                    stringstream str;
+                    str << "input_dim: " << model_params.input_dim << endl;
+                    str << "output_dim: " << model_params.output_dim << endl;
+                    ImGui::Text(str.str().c_str());
+                    
+                    ImGui::InputInt("num_hidden_layers", &num_hidden_layers, 1, 10);
+                    for(int i=0; i<model_params.hidden_dims.size(); i++)
+                        ImGui::InputInt(("hidden_dim_" + ofToString(i)).c_str(), &model_params.hidden_dims[i], 1, 10);
+                }
+                if(ImGui::CollapsingHeader("Training Parameters", NULL, true, true)) {
+                    ImGui::InputFloat("learning_rate", &train_params.learning_rate, 0.01);
+                    ImGui::InputFloat("learning_momentum", &train_params.learning_momentum, 0.01);
+                    ImGui::InputFloat("desired_error", &train_params.desired_error, 0.00001);
+                    ImGui::InputInt("max_epochs", &train_params.max_epochs, 100);
+                    ImGui::InputInt("epochs_between_reports", &train_params.epochs_between_reports, 10);
+                    
+                    ImGui::InputInt("num_train_sessions", &train_params.num_train_sessions, 1);
+                    ImGui::Checkbox("use_validation", &train_params.use_validation);
+                    ImGui::SliderInt("validation_size", &train_params.validation_size, 0, 100);
+                    ImGui::Checkbox("randomize_train_order", &train_params.randomize_train_order);
+                    ImGui::Checkbox("use_normalization", &train_params.use_normalization);
+                    // TODO: add activation function, algorithm, other params?
+                }
+                
+                if(ImGui::CollapsingHeader("Training Data", NULL, true, true)) {
+                    stringstream str;
+                    str << "input_dim: " << training_data.get_input_dim() << endl;
+                    str << "output_dim: " << training_data.get_output_dim() << endl;
+                    str << "training samples: " << training_data.size() << endl;
+                    ImGui::Text(str.str().c_str());
+                }
                 
                 if(ImGui::Button("init", button_size)) init(); ImGui::SameLine();
                 if(ImGui::Button("train", button_size)) train();
                 
-                stringstream str;
-                if(model) {
-                    str << "input_dim: " << model->get_input_dim() << endl;
-                    str << "hidden_dim: " << model->get_params().hidden_dim << endl;
-                    str << "output_dim: " << model->get_output_dim() << endl;
-                    str << "training samples: " << model->get_training_data().size() << endl;
-                    ImGui::Text(str.str().c_str());
-                }
                 
                 if(ImGui::CollapsingHeader("Viz", NULL, true, true)) {
                     //                    void ImGui::PlotHistogram(const char* label, const float* values, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size, int stride)
                     static float begin = -1, end = 1;
                     ImGui::DragFloatRange2("range", &begin, &end, 0.01f);//, 0.0f, 100.0f, "Min: %.1f", "Max: %.1f");
-                    static vector<float> temp; // this is stupid that I can't get GRT to work with floats!
+                    static vector<float> temp; // sucks that I can't get GRT to work with floats and ImGui can't display doubles, so I have to convert :/
                     if(!input_vec.empty()) {
                         msa::vector_utils::convert(input_vec, temp);
                         ImGui::PlotHistogram("input_vec", temp.data(), temp.size(), 0, NULL, begin, end, ImVec2(0,80));
@@ -219,9 +282,21 @@ namespace pr {
             }
             
         protected:
+            // generic low level ml
+            MLImpl ml_impl;
+            bool trained = false;
+            int num_hidden_layers = 1;
+            msa::ml::mlp::ModelParameters model_params;
+            msa::ml::mlp::TrainingParameters train_params;
+            msa::ml::TrainingData<DataVector, DataType> training_data;
+            
+            // higher level generic ml
             bool enabled = false;
             bool do_record = false;
             bool do_predict = false;
+            DataVector input_vec, target_vec, output_vec;  // cached vectors for gui etc.
+            
+            // app specific ml stuff
             int input_person_id = 2;            // input person, will be present during training and prediction
             int target_person_id = 1;           // target person, will be 'imagined'
             int output_person_id = 0;           // slot to write to
@@ -230,11 +305,8 @@ namespace pr {
             vector<string> joints_to_include;   // vector of included joints
             
             
-            unique_ptr<Model> model;
-            DataVector input_vec, target_vec, output_vec;  // cached vectors
-            
             static vector<string> update_representation_vec(const map<string, bool>& joints_bools_map) {
-                ofLogNotice() << "ml::Trainer::update_representation_vec";
+                ofLogNotice() << "ml::Main:update_representation_vec";
                 vector<string> joints_to_include;
                 // iterate joints to include
                 for(const auto& kv : joints_bools_map) {

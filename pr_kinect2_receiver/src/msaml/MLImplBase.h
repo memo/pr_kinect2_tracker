@@ -36,21 +36,28 @@ namespace msa {
 //                kRprop
 //            };
 
-            struct Parameters {
-                unsigned int input_dim = 2;		// dimensions of input vector
-                unsigned int output_dim = 2;	// dimensions of output vector
-                unsigned int num_layers = 3;	// number of layers (including input and output)
-                unsigned int hidden_dim = 3;	// number of hidden neurons
+            struct ModelParameters {
+                int input_dim = 2;                  // dimensions of input vector
+                int output_dim = 2;                 // dimensions of output vector
+                vector<int> hidden_dims = { 3 };	// dimensions per hidden layer
+            };
+            
+            struct TrainingParameters {
                 float learning_rate = 0.1f;
                 float learning_momentum = 0.9f;
                 float desired_error = 1.0e-5f;
-                unsigned int max_epochs = 10000;
-                unsigned int epochs_between_reports = 100;
+                int max_epochs = 10000;
+                int epochs_between_reports = 100;
 //                float activation_steepness_hidden = 0.5f;
 //                float activation_steepness_output = 0.5f;
 //                ActivationFunction activation_function_hidden = ActivationFunction::kBinaryLogistic;
 //                ActivationFunction activation_function_output = ActivationFunction::kBinaryLogistic;
 //                int training_algorithm = TrainingAlgorithm::kBackpropBatch;
+                int num_train_sessions = 20;    // how many times to randomly train (with different start weights)
+                bool use_validation = true;
+                int validation_size = 10;    // what % of data to use for validation
+                bool randomize_train_order = true;
+                bool use_normalization = true;
             };
         };
         
@@ -63,13 +70,10 @@ namespace msa {
             
 			virtual ~MLImplBase() { destroy(); }
 
-			// create model with name and dimensions
-//			virtual void setDimensions(int idims, int odims) = 0;
-
 			virtual std::string type() const = 0;
 
 			// train data on a model
-            virtual bool train(const TrainingData<DataVector, T>& training_data, const mlp::Parameters& params) = 0;
+            virtual bool train(const TrainingData<DataVector, T>& training_data, const mlp::ModelParameters& model_params, const mlp::TrainingParameters& train_params) = 0;
 
 			// predict data for a model (assumes input and output is already normalized)
             virtual void predict(const DataVector& input_vector_norm, DataVector& output_vector_norm) const = 0;

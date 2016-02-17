@@ -31,7 +31,7 @@ class ofApp : public ofBaseApp {
     // osc
     pr::OscSender osc_sender;
     
-    pr::ml::Trainer ml;
+    pr::ml::Manager ml;
 
     // display params
     struct {
