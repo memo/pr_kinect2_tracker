@@ -22,7 +22,7 @@ class ofApp : public ofBaseApp {
     vector<pr::Receiver::Ptr> receivers;
 
     // the persons
-    vector<pr::Person::Ptr> persons_global_reduced; // list of final, condensed persons
+    vector<pr::Person::Ptr> persons_global_final; // list of final, condensed persons
     vector<pr::Person::Ptr> persons_global_all;     // list of all persons from all receivers
 
     // for gui;
@@ -36,11 +36,12 @@ class ofApp : public ofBaseApp {
     // display params
     struct {
         bool show_floor = true;
-		bool draw_kinect_floors = false;
+		bool show_kinect_floors = false;
         ofVec2f floor_size = { 10, 8 };
         ofVec3f floor_pos = { 0, 0, -4 };
-        bool show_all_persons = true;
-        bool show_reduced_persons = true;
+        bool show_received_persons = true;
+        bool show_final_persons = true;
+        bool show_avg_person = false;
         float joint_radius = 0.2;
         bool show_target_pos = false;
         bool show_springy_pos = false;
@@ -103,10 +104,11 @@ class ofApp : public ofBaseApp {
 
 		xml.setTo("//Settings/Display");
 		display.show_floor = xml.getBoolValue("show_floor");
-		display.draw_kinect_floors = xml.getBoolValue("draw_kinect_floors");
+		display.show_kinect_floors = xml.getBoolValue("show_kinect_floors");
 //		display.floor_size = xml.getFloatValue("floor_size");
-		display.show_all_persons = xml.getBoolValue("show_all_persons");
-		display.show_reduced_persons = xml.getBoolValue("show_reduced_persons");
+		display.show_received_persons = xml.getBoolValue("show_received_persons");
+		display.show_final_persons = xml.getBoolValue("show_final_persons");
+        display.show_avg_person = xml.getBoolValue("show_avg_person");
 		display.joint_radius = xml.getFloatValue("joint_radius");
 		display.show_target_pos = xml.getBoolValue("show_target_pos");
 		display.show_springy_pos = xml.getBoolValue("show_springy_pos");
@@ -125,10 +127,11 @@ class ofApp : public ofBaseApp {
 		xml.setTo("Display");
 
 		xml.addValue("show_floor", ofToString(display.show_floor));
-		xml.addValue("draw_kinect_floors", ofToString(display.draw_kinect_floors));
+		xml.addValue("show_kinect_floors", ofToString(display.show_kinect_floors));
 //		xml.addValue("floor_size", ofToString(display.floor_size));
-		xml.addValue("show_all_persons", ofToString(display.show_all_persons));
-		xml.addValue("show_reduced_persons", ofToString(display.show_reduced_persons));
+		xml.addValue("show_received_persons", ofToString(display.show_received_persons));
+		xml.addValue("show_final_persons", ofToString(display.show_final_persons));
+        xml.addValue("show_avg_person", ofToString(display.show_avg_person));
 		xml.addValue("joint_radius", ofToString(display.joint_radius));
 		xml.addValue("show_target_pos", ofToString(display.show_target_pos));
 		xml.addValue("show_springy_pos", ofToString(display.show_springy_pos));
@@ -176,43 +179,43 @@ class ofApp : public ofBaseApp {
             // sort global list
             std::sort(persons_global_all.begin(), persons_global_all.end(), pr::Person::compare);
             
-            if(persons_global_reduced.size() != kPersonCount) {
-                ofLogWarning() << "App::update persons_global_reduced.size() == " << persons_global_reduced.size() << ". Allocating";
-                persons_global_reduced.resize(kPersonCount);
+            if(persons_global_final.size() != kPersonCount) {
+                ofLogWarning() << "App::update persons_global_final.size() == " << persons_global_final.size() << ". Allocating";
+                persons_global_final.resize(kPersonCount);
             }
             
-            persons_global_reduced[kPersonLeft] = persons_global_all.front();
-            persons_global_reduced[kPersonRight] = persons_global_all.back();
+            persons_global_final[kPersonLeft] = persons_global_all.front();
+            persons_global_final[kPersonRight] = persons_global_all.back();
             
             
             // calculate average person (allocate first if nessecary)
-            if(!persons_global_reduced[kPersonAvg]) persons_global_reduced[kPersonAvg] = make_shared<pr::Person>("average");
+            if(!persons_global_final[kPersonAvg]) persons_global_final[kPersonAvg] = make_shared<pr::Person>("average");
 
-            if(persons_global_reduced[kPersonAvg] && persons_global_reduced[kPersonLeft] && persons_global_reduced[kPersonRight]) {
-                for(auto&& jkv : persons_global_reduced[kPersonAvg]->joints) {
+            if(persons_global_final[kPersonAvg] && persons_global_final[kPersonLeft] && persons_global_final[kPersonRight]) {
+                for(auto&& jkv : persons_global_final[kPersonAvg]->joints) {
                     pr::JointInfo& joint = jkv.second;
                     string jointName = jkv.first;
-                    joint.confidence    = (persons_global_reduced[kPersonLeft]->joints[jointName].confidence  + persons_global_reduced[kPersonRight]->joints[jointName].confidence)/2;
-                    joint.pos.current   = (persons_global_reduced[kPersonLeft]->joints[jointName].pos.current + persons_global_reduced[kPersonRight]->joints[jointName].pos.current)/2;
-                    joint.quat          = (persons_global_reduced[kPersonLeft]->joints[jointName].quat        + persons_global_reduced[kPersonRight]->joints[jointName].quat)/2;
-                    joint.euler         = (persons_global_reduced[kPersonLeft]->joints[jointName].euler       + persons_global_reduced[kPersonRight]->joints[jointName].euler)/2;
-                    joint.vel.current   = (persons_global_reduced[kPersonLeft]->joints[jointName].vel.current + persons_global_reduced[kPersonRight]->joints[jointName].vel.current)/2;
-                    joint.speed         = (persons_global_reduced[kPersonLeft]->joints[jointName].speed       + persons_global_reduced[kPersonRight]->joints[jointName].speed)/2;
-                    joint.vec           = (persons_global_reduced[kPersonLeft]->joints[jointName].vec         + persons_global_reduced[kPersonRight]->joints[jointName].vec)/2;
-                    joint.springy_pos   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_pos + persons_global_reduced[kPersonRight]->joints[jointName].springy_pos)/2;
-                    joint.springy_vel   = (persons_global_reduced[kPersonLeft]->joints[jointName].springy_vel + persons_global_reduced[kPersonRight]->joints[jointName].springy_vel)/2;
+                    joint.confidence    = (persons_global_final[kPersonLeft]->joints[jointName].confidence  + persons_global_final[kPersonRight]->joints[jointName].confidence)/2;
+                    joint.pos.current   = (persons_global_final[kPersonLeft]->joints[jointName].pos.current + persons_global_final[kPersonRight]->joints[jointName].pos.current)/2;
+                    joint.quat          = (persons_global_final[kPersonLeft]->joints[jointName].quat        + persons_global_final[kPersonRight]->joints[jointName].quat)/2;
+                    joint.euler         = (persons_global_final[kPersonLeft]->joints[jointName].euler       + persons_global_final[kPersonRight]->joints[jointName].euler)/2;
+                    joint.vel.current   = (persons_global_final[kPersonLeft]->joints[jointName].vel.current + persons_global_final[kPersonRight]->joints[jointName].vel.current)/2;
+                    joint.speed         = (persons_global_final[kPersonLeft]->joints[jointName].speed       + persons_global_final[kPersonRight]->joints[jointName].speed)/2;
+                    joint.vec           = (persons_global_final[kPersonLeft]->joints[jointName].vec         + persons_global_final[kPersonRight]->joints[jointName].vec)/2;
+                    joint.springy_pos   = (persons_global_final[kPersonLeft]->joints[jointName].springy_pos + persons_global_final[kPersonRight]->joints[jointName].springy_pos)/2;
+                    joint.springy_vel   = (persons_global_final[kPersonLeft]->joints[jointName].springy_vel + persons_global_final[kPersonRight]->joints[jointName].springy_vel)/2;
                 }
 
                 
                 // machine learning update
-                ml.update(persons_global_reduced);
+                ml.update(persons_global_final);
                 
             } else {
                 ofLogError() << "App::update one or more persons == NULL";
             }
         } else {
             // if no one exists, don't send any person data
-            persons_global_reduced.clear();
+            persons_global_final.clear();
         }
 
         // send osc
@@ -227,11 +230,11 @@ class ofApp : public ofBaseApp {
         // send metadata
         ofxOscMessage m;
         m.setAddress("/meta");
-        m.addInt32Arg(persons_global_reduced.size());
+        m.addInt32Arg(persons_global_final.size());
         b.addMessage(m);
 
         int i=0;
-        for(auto&& person: persons_global_reduced) {
+        for(auto&& person: persons_global_final) {
             if(person) {
                 for(auto&& jkv : person->joints) {
                     pr::JointInfo& joint = jkv.second;
@@ -296,15 +299,18 @@ class ofApp : public ofBaseApp {
 			ofPopStyle();
         }
 
-        if(display.show_all_persons) {
+        if(display.show_received_persons) {
             for(auto&& person: persons_global_all) {
                 if(person) person->draw(display.joint_radius, display.show_target_pos, display.show_springy_pos, display.show_vel, display.vel_mult);
             }
         }
 
-        if(display.show_reduced_persons) {
-            for(auto&& person: persons_global_reduced) {
-                if(person) person->draw(display.joint_radius, display.show_target_pos, display.show_springy_pos, display.show_vel, display.vel_mult);
+        if(display.show_final_persons) {
+            for(int i=0; i<persons_global_final.size(); i++) {
+                if(display.show_avg_person || i != kPersonAvg) {
+                    auto person = persons_global_final[i];
+                    if(person) person->draw(display.joint_radius, display.show_target_pos, display.show_springy_pos, display.show_vel, display.vel_mult);
+                }
             }
         }
         
@@ -315,7 +321,7 @@ class ofApp : public ofBaseApp {
                 ofDrawAxis(0.5);
                 receiver->getNode().restoreTransformGL();
 
-                if (display.draw_kinect_floors) {
+                if (display.show_kinect_floors) {
                     ofPlanePrimitive k_floor_plane(4, 4, 4, 4);
                     //                    k_floor_plane.setWidth(4.0);
                     //                    k_floor_plane.setHeight(4.0);
@@ -371,10 +377,11 @@ class ofApp : public ofBaseApp {
         // display params
         if(ImGui::CollapsingHeader("Display params", NULL, true, true)) {
             ImGui::Checkbox("show floor", &display.show_floor);
-            ImGui::Checkbox("draw Kinect floors", &display.draw_kinect_floors);
+            ImGui::Checkbox("draw Kinect floors", &display.show_kinect_floors);
     //        ImGui::SliderInt("floor size", &display.floor_size, 5, 20);
-            ImGui::Checkbox("show all persons", &display.show_all_persons);
-            ImGui::Checkbox("show reduced persons", &display.show_reduced_persons);
+            ImGui::Checkbox("show all persons", &display.show_received_persons);
+            ImGui::Checkbox("show final persons", &display.show_final_persons);
+            ImGui::Checkbox("show avg person", &display.show_avg_person);
 
             ImGui::DragFloat("jointRadius", &display.joint_radius, 0.001, 0, 2);
             ImGui::Checkbox("show target pos", &display.show_target_pos);
