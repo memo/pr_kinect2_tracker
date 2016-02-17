@@ -190,14 +190,14 @@ void Receiver::update(vector<Person::Ptr>& persons_global) {
 void Receiver::drawGui() {
     string str_index = ofToString(_index);
     if(ImGui::CollapsingHeader(("Receiver " + str_index).c_str(), NULL, true, true)) {
-        ImGui::Checkbox(("Enabled " + str_index).c_str(), &_enabled);
-        if(ImGui::InputInt(("port " + str_index).c_str(), &_port, 1, 100)) initOsc();
-        if(ImGui::SliderFloat3(("pos " + str_index).c_str(), _pos.getPtr(), -5, 5)) updateMatrix();
-        if(ImGui::SliderFloat3(("rot " + str_index).c_str(), _rot.getPtr(), -180, 180)) updateMatrix();
+        ImGui::Checkbox(("Enabled##" + str_index).c_str(), &_enabled);
+        if(ImGui::InputInt(("port##" + str_index).c_str(), &_port, 1, 100)) initOsc();
+        if(ImGui::DragFloat3(("pos##" + str_index).c_str(), _pos.getPtr(), 0.001)) updateMatrix();
+        if(ImGui::DragFloat3(("rot##" + str_index).c_str(), _rot.getPtr(), 0.01)) updateMatrix();
 
         stringstream str;
         str << "Connected: " << (isConnected() ? "YES" : "NO") << endl;
-        str << "Num People: " << _numPeople;
+        str << "Num people: " << _numPeople;
         ImGui::Text(str.str().c_str());
     }
 }

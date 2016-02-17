@@ -30,8 +30,24 @@ namespace pr {
             //    float learning_rate     = 0.1;    // not used in rdprop
             //    float momentum          = 0.9;
             float desired_error     = 0.001;
-            int max_epochs          = 100000;
-            int epochs_per_report   = 1000;
+            int max_epochs          = 10000;
+            int epochs_per_report   = 100;
+            
+            
+            int size() {
+                if(input_dim <= 0 || output_dim <= 0) {
+                    ofLogError() << "ml::Model::size - invalid dimensions";
+                    return 0;
+                }
+                
+                if(inputs.size() / input_dim != targets.size() / output_dim) {
+                    ofLogError() << "ml::Model::size - input-target dimension mismatch";
+                    return 0;
+                }
+                
+                return inputs.size() / input_dim;
+            }
+            
             
             void clear_training_data() {
                 ofLogNotice() << "ml::Model::clear_training_data";
@@ -178,22 +194,21 @@ namespace pr {
                 if(!enabled) return;
                 
                 Person::Ptr& input_person = persons[input_person_id];
+                if(input_person) input_vec = person_to_representation(input_person, joints_to_include, input_do_local);
+                
                 Person::Ptr& target_person = persons[target_person_id];
+                if(target_person) target_vec = person_to_representation(target_person, joints_to_include, target_do_local);
                 
                 if(input_person) {
                     if(do_record) {
-                        do_predict = false;
                         if(target_person) {
-                            model.add_training_data(
-                                                    person_to_representation(input_person, joints_to_include, input_do_local),
-                                                    person_to_representation(target_person, joints_to_include, target_do_local)
-                                                    );
+                            model.add_training_data(input_vec, target_vec);
                         } else {
                             ofLogError() << "ml::Trainer::update record - target person null";
                         }
                     } else if(do_predict) {
                         // get prediction
-                        model.predict(person_to_representation(input_person, joints_to_include, input_do_local), prediction);
+                        model.predict(input_vec, target_vec);
                         
                         // make sure we have a unique person to write to
                         if(!target_person || target_person == input_person) {
@@ -201,21 +216,37 @@ namespace pr {
                             target_person = make_shared<pr::Person>();
                         }
                         
-                        representation_to_person(target_person, joints_to_include, target_do_local, prediction);
-                        // what to do if input and target is same person pointer :/
+                        representation_to_person(target_person, joints_to_include, target_do_local, target_vec);
                     }
                 } else {
                     ofLogError() << "ml::Trainer::update - input person null";
                 }
             }
             
+            void train() {
+                ofLogNotice() << "ml::Trainer::train ";
+                
+                if(!enabled) return;
+                
+                do_record = do_predict = false;
+                
+                model.train();
+            }
             
-            void drawGui() {
+            
+            void draw_gui() {
+                static ImVec2 button_size(160, 20);
+                ImGui::SetNextWindowSize(ImVec2(350, ofGetHeight()));
+                ImGui::SetNextWindowPos(ImVec2(ofGetWidth() - 350, 0));
+                
+                
                 // start new window
                 ImGui::Begin("ML");
-                ImGui::Checkbox("Enabled", &enabled);
-                ImGui::Checkbox("Record", &do_record);
-                ImGui::Checkbox("Predict", &do_predict);
+                if(ImGui::Checkbox("Enabled", &enabled)) do_predict = do_record = false;
+                ImGui::SameLine();
+                if(ImGui::Checkbox("Record", &do_record)) do_predict = false;
+                ImGui::SameLine();
+                if(ImGui::Checkbox("Predict", &do_predict)) do_record = false;
                 
                 ImGui::InputInt("input_person_id", &input_person_id);
                 ImGui::Checkbox("input_do_local", &input_do_local);
@@ -226,26 +257,59 @@ namespace pr {
                 //                ImGui::SliderInt("hidden_dim", &model.hidden_dim, 1, 50);
                 //                ImGui::SliderInt("output_dim", &model.output_dim, 1, 50);
                 
-                if(ImGui::Button("Init")) init();
+                if(ImGui::Button("init", button_size)) init();
+                if(ImGui::Button("train", button_size)) train();
                 
                 stringstream str;
                 str << "input_dim: " << model.input_dim << endl;
                 str << "hidden_dim: " << model.hidden_dim << endl;
-                str << "model.output_dim: " << model.output_dim << endl;
+                str << "output_dim: " << model.output_dim << endl;
+                str << "training samples: " << model.size() << endl;
                 ImGui::Text(str.str().c_str());
                 
-                if(ImGui::CollapsingHeader("Joints", NULL, true, true)) {
-                    bool all_joints = ImGui::Button("All joints");
-                    bool no_joints = ImGui::Button("No joints");
+                if(ImGui::CollapsingHeader("Viz", NULL, true, true)) {
+                    //                    void ImGui::PlotHistogram(const char* label, const float* values, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size, int stride)
                     
-                    bool rep_changed = false;
-                    // iterate joint parents (to get names of all joints)
+                    if(!input_vec.empty()) ImGui::PlotHistogram("input_vec", input_vec.data(), input_vec.size(), 0, NULL, -2.0f, 2.0f, ImVec2(0,80));
+                    if(!target_vec.empty()) ImGui::PlotHistogram("target_vec", target_vec.data(), target_vec.size(), 0, NULL, -2.0f, 2.0f, ImVec2(0,80));
+                }
+                
+                if(ImGui::CollapsingHeader("Representation", NULL, true, true)) {
                     static map<string, bool> joints_bools_map;  // map of bools for joints (for gui)
-                    for(auto&& joint_name : Person::joint_names) {
-                        if(all_joints) { joints_bools_map[joint_name] = true; rep_changed = true; }
-                        if(no_joints) { joints_bools_map[joint_name] = false; rep_changed = true; }
-                        if(ImGui::Checkbox(joint_name.c_str(), &joints_bools_map[joint_name])) rep_changed = true;
+                    bool rep_changed = false;
+                    
+                    if(ImGui::Button("none", button_size)) {
+                        rep_changed = true;
+                        for(auto&& joint_name : Person::joint_names) joints_bools_map[joint_name] = false;
                     }
+                    ImGui::SameLine();
+                    if(ImGui::Button("all", button_size)) {
+                        rep_changed = true;
+                        for(auto&& joint_name : Person::joint_names) joints_bools_map[joint_name] = true;
+                    }
+                    
+                    
+                    if(ImGui::Button("hands", button_size)) {
+                        rep_changed = true;
+                        for(auto&& joint_name : Person::joint_names) joints_bools_map[joint_name] = false;
+                        joints_bools_map["l_hand"] = joints_bools_map["r_hand"] = true;
+                    }
+                    ImGui::SameLine();
+                    if(ImGui::Button("hands and feet", button_size)) {
+                        rep_changed = true;
+                        for(auto&& joint_name : Person::joint_names) joints_bools_map[joint_name] = false;
+                        joints_bools_map["l_hand"] = joints_bools_map["r_hand"] = joints_bools_map["l_foot"] = joints_bools_map["r_foot"] = true;
+                    }
+                    
+                    
+                    
+                    // iterate joint parents (to get names of all joints)
+                    int i=0;
+                    for(auto&& joint_name : Person::joint_names) {
+                        if(ImGui::Checkbox(joint_name.c_str(), &joints_bools_map[joint_name])) rep_changed = true;
+                        if(i++ % 2 == 0) ImGui::SameLine(button_size.x);
+                    }
+                    
                     
                     if(rep_changed) {
                         joints_to_include = update_representation_vec(joints_bools_map);
@@ -262,7 +326,7 @@ namespace pr {
             
         protected:
             Model model;
-            DataVector prediction;  // cached vector used for prediction
+            DataVector input_vec, target_vec;  // cached vectors used for prediction
             
             static vector<string> update_representation_vec(const map<string, bool>& joints_bools_map) {
                 ofLogNotice() << "ml::Trainer::update_representation_vec";

@@ -78,9 +78,12 @@ class ofApp : public ofBaseApp {
 		floorPlane.set(display.floor_size.x, display.floor_size.y, display.floor_size.x+1, display.floor_size.y+1);
         floorPlane.setPosition(display.floor_pos);
 		floorPlane.rotate(90, 1, 0, 0);
+        
+        ofSetWindowPosition(0, 0);
+        ofSetWindowShape(ofGetScreenWidth(), ofGetScreenWidth());
     }
 
-
+    
     //--------------------------------------------------------------
     void loadFromXml(string filename) {
 
@@ -325,8 +328,6 @@ class ofApp : public ofBaseApp {
         cam.end();
 
         drawGui();
-        
-        ofDrawBitmapString(ofToString(ofGetFrameRate(), 2), 30, 20);
     }
 
 
@@ -334,7 +335,18 @@ class ofApp : public ofBaseApp {
     void drawGui() {
 
         gui.begin();
-        //        ImGui::ShowWindow("PR_PERSONS_RECEIVER", null, true, true);
+        ImGui::SetNextWindowSize(ImVec2(400, ofGetHeight()));
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::Begin("MAIN");
+
+        // show stats
+        if(ImGui::CollapsingHeader("Global Stats", NULL, true, true)) {
+            stringstream str;
+            str << "Total persons: " << persons_global_all.size() << endl;
+            str << "fps: " << ofGetFrameRate();
+            ImGui::Text(str.str().c_str());
+        }
+        
 
         if(ImGui::CollapsingHeader("Global Params", NULL, true, true)) {
             ImGui::SliderFloat("pos smoothing", &pr::Receiver::pos_smoothing, 0, 1);
@@ -366,15 +378,11 @@ class ofApp : public ofBaseApp {
             ImGui::SliderFloat("vel mult", &display.vel_mult, 0, 5);
         }
               
-        // show stats
-        if(ImGui::CollapsingHeader("Global Stats", NULL, true, true)) {
-            stringstream str;
-            str << "Total persons: " << persons_global_all.size() << endl;
-            str << "fps: " << ofGetFrameRate();
-            ImGui::Text(str.str().c_str());
-        }
-
-        ml.drawGui();
+        ImGui::End();
+        
+        ImGui::ShowTestWindow(NULL);
+        
+        ml.draw_gui();
 
         gui.end();
     }
