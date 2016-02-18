@@ -19,12 +19,10 @@
 namespace pr {
     namespace ml {
         
-        typedef GRT::Float DataType;
         typedef GRT::VectorFloat DataVector;
         typedef msa::ml::MLImplGrt<DataVector> MLImpl;
         
-        //        typedef fann_type DataType;
-        //        typedef vector<DataType> DataVector;
+        //        typedef vector<fann_type> DataVector;
         //        typedef msa::ml::MLImplFann<DataVector, DataType> MLImpl;
         
         class Manager {
@@ -315,7 +313,7 @@ namespace pr {
             int num_hidden_layers = 1;
             msa::ml::mlp::ModelParameters model_params;
             msa::ml::mlp::TrainingParameters train_params;
-            msa::ml::TrainingData<DataVector, DataType> training_data;
+            msa::ml::TrainingData<DataVector> training_data;
             
             // higher level generic ml
             bool enabled = false;
