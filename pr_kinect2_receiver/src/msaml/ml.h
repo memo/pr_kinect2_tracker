@@ -13,17 +13,30 @@
 #include "VectorUtils.h"
 
 #include "TrainingData.h"
+
+//#define ML_IMPL_FANN
+//#define ML_IMPL_GRT
+#define ML_IMPL_OPENCV
+
+#if defined(ML_IMPL_FANN)
 #include "MLImplFann.h"
+typedef vector<fann_type> DataVector;
+typedef msa::ml::MLImplFann<DataVector> MLImpl;
+
+#elif defined(ML_IMPL_GRT)
 #include "MLImplGrt.h"
+typedef GRT::VectorDouble DataVector;
+typedef msa::ml::MLImplGrt<DataVector> MLImpl;
+
+#elif defined(ML_IMPL_OPENCV)
+#include "MLImplOpencv.h"
+typedef vector<double> DataVector;
+typedef msa::ml::MLImplOpencv<DataVector> MLImpl;
+
+#endif
 
 namespace pr {
     namespace ml {
-        
-        typedef GRT::VectorFloat DataVector;
-        typedef msa::ml::MLImplGrt<DataVector> MLImpl;
-        
-        //        typedef vector<fann_type> DataVector;
-        //        typedef msa::ml::MLImplFann<DataVector, DataType> MLImpl;
         
         class Manager {
         public:
@@ -189,6 +202,7 @@ namespace pr {
                 
                 if(ImGui::CollapsingHeader("Model Parameters", NULL, true, true)) {
                     stringstream str;
+                    str << "Implementation: " << ml_impl.type() << endl;
                     str << "input_dim: " << model_params.input_dim << endl;
                     str << "output_dim: " << model_params.output_dim << endl;
                     ImGui::Text(str.str().c_str());

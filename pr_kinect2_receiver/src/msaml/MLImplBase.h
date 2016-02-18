@@ -8,7 +8,7 @@
 // Created by Memo Akten, www.memo.tv
 //
 //
-// Base class / interface for an implementation of mlp
+// Base class / interface for an implementation of an ml algorithm
 //
 
 
@@ -44,7 +44,7 @@ namespace msa {
             
             struct TrainingParameters {
                 float learning_rate = 0.1f;
-                float learning_momentum = 0.9f;
+                float learning_momentum = 0.1f;
                 float min_delta = 1.0e-5f;
                 int max_epochs = 10000;
                 int epochs_between_reports = 100;
@@ -76,6 +76,7 @@ namespace msa {
             virtual bool train(const vector<DataVector>& inputs, const vector<DataVector>& outputs, const mlp::ModelParameters& model_params, const mlp::TrainingParameters& train_params) = 0;
             
             // predict data for a model (assumes input and output is already normalized)
+            // output_vector must be pre-allocated!
             virtual void predict(const DataVector& input_vector, DataVector& output_vector) const = 0;
             
             // clean up
