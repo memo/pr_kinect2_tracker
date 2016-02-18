@@ -30,13 +30,17 @@ namespace msa {
         bool train(const vector<DataVector>& inputs, const vector<DataVector>& outputs, const mlp::ModelParameters& model_params, const mlp::TrainingParameters& train_params) override {
         destroy();
         
+        int num_training_data = inputs.size();
+        
         // create data structure
-        fann_train_data * fdata = fann_create_train(inputs.size(), model_params.input_dim, model_params.output_dim);
+        fann_train_data * fdata = fann_create_train(num_training_data, model_params.input_dim, model_params.output_dim);
         
         // copy data into fann structure
-        for (int i = 0; i < inputs.size(); i++) {
-            memcpy(fdata->input[i], &inputs[i], vector_utils::num_bytes(inputs[i]));
-            memcpy(fdata->output[i], &outputs[i], vector_utils::num_bytes(outputs[i]));
+        for (int i=0; i<num_training_data; i++) {
+            for(int j=0; j<inputs[i].size(); j++) { fdata->input[i][j] = inputs[i][j]; }
+            for(int j=0; j<outputs[i].size(); j++) { fdata->output[i][j] = outputs[i][j]; }
+            //            memcpy(fdata->input[i], &inputs[i], vector_utils::num_bytes(inputs[i]));
+            //            memcpy(fdata->output[i], &outputs[i], vector_utils::num_bytes(outputs[i]));
         }
         
         
@@ -52,7 +56,7 @@ namespace msa {
         
         fann_set_learning_rate(_ann, train_params.learning_rate);
         fann_set_learning_momentum(_ann, train_params.learning_momentum);
-        fann_set_training_algorithm(_ann, FANN_TRAIN_QUICKPROP);//FANN_TRAIN_RPROP);
+        fann_set_training_algorithm(_ann, FANN_TRAIN_BATCH);//FANN_TRAIN_RPROP);//FANN_TRAIN_QUICKPROP);//);
         fann_set_activation_function_hidden(_ann, FANN_SIGMOID_SYMMETRIC_STEPWISE);
         fann_set_activation_function_output(_ann, FANN_SIGMOID_SYMMETRIC_STEPWISE);
         
@@ -68,8 +72,8 @@ namespace msa {
     void predict(const DataVector& input_vector, DataVector& output_vector) const override {
     // run network
     fann_type* fann_output = fann_run(_ann, (fann_type*)input_vector.data());
-    //    for(int i=0; i<output_vector.size(); i++) output_vector[i] = fann_output[i];
-    memcpy(output_vector.data(), fann_output, vector_utils::num_bytes(output_vector));
+    for(int i=0; i<output_vector.size(); i++) { output_vector[i] = fann_output[i]; }
+    //memcpy(output_vector.data(), fann_output, vector_utils::num_bytes(output_vector));
 }
 
 void destroy() override {

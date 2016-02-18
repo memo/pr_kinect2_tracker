@@ -15,8 +15,8 @@
 #include "TrainingData.h"
 
 //#define ML_IMPL_FANN
-//#define ML_IMPL_GRT
-#define ML_IMPL_OPENCV
+#define ML_IMPL_GRT
+//#define ML_IMPL_OPENCV
 
 #if defined(ML_IMPL_FANN)
 #include "MLImplFann.h"

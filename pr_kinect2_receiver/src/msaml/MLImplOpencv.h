@@ -59,7 +59,7 @@ namespace msa {
         criteria.max_iter = train_params.max_epochs;
         criteria.epsilon = train_params.min_delta;
         criteria.type = CV_TERMCRIT_ITER | CV_TERMCRIT_EPS;
-        params.train_method = CvANN_MLP_TrainParams::RPROP; // CvANN_MLP_TrainParams::BACKPROP;  // 
+        params.train_method = CvANN_MLP_TrainParams::RPROP; // CvANN_MLP_TrainParams::BACKPROP;  //
         params.bp_dw_scale = train_params.learning_rate;
         params.bp_moment_scale = train_params.learning_momentum;
         params.term_crit = criteria;
