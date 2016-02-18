@@ -19,13 +19,13 @@
 namespace pr {
     namespace ml {
         
-                typedef GRT::Float DataType;
-                typedef GRT::VectorFloat DataVector;
-                typedef msa::ml::MLImplGrt<DataVector, DataType> MLImpl;
+        typedef GRT::Float DataType;
+        typedef GRT::VectorFloat DataVector;
+        typedef msa::ml::MLImplGrt<DataVector> MLImpl;
         
-//        typedef fann_type DataType;
-//        typedef vector<DataType> DataVector;
-//        typedef msa::ml::MLImplFann<DataVector, DataType> MLImpl;
+        //        typedef fann_type DataType;
+        //        typedef vector<DataType> DataVector;
+        //        typedef msa::ml::MLImplFann<DataVector, DataType> MLImpl;
         
         class Manager {
         public:
@@ -115,17 +115,22 @@ namespace pr {
                 // if trained, predict output
                 output_vector.resize(model_params.output_dim);
                 
-                DataVector input_vector_norm(input_vector.size());
-                DataVector output_vector_norm(output_vector.size());
-                
                 // normalize input
-                msa::vector_utils::normalize(input_vector, training_data.get_input_min_values(), training_data.get_input_max_values(), training_data.normalize_min, training_data.normalize_max, input_vector_norm);
-                
-                // run network
-                ml_impl.predict(input_vector_norm, output_vector_norm);
-                
-                // unnormalize output
-                msa::vector_utils::unnormalize(output_vector_norm, training_data.get_output_min_values(), training_data.get_output_max_values(), training_data.normalize_min, training_data.normalize_max, output_vector);
+                if(train_params.use_normalization) {
+                    DataVector input_vector_norm(input_vector.size());
+                    DataVector output_vector_norm(output_vector.size());
+                    
+                    msa::vector_utils::normalize(input_vector, training_data.get_input_min_values(), training_data.get_input_max_values(), training_data.normalize_min, training_data.normalize_max, input_vector_norm);
+                    
+                    // run network
+                    ml_impl.predict(input_vector_norm, output_vector_norm);
+                    
+                    // unnormalize output
+                    msa::vector_utils::unnormalize(output_vector_norm, training_data.get_output_min_values(), training_data.get_output_max_values(), training_data.normalize_min, training_data.normalize_max, output_vector);
+                } else {
+                    // run network
+                    ml_impl.predict(input_vector, output_vector);
+                }
                 
                 return true;
             }
@@ -140,8 +145,13 @@ namespace pr {
                 do_record = do_predict = false;
                 
                 if (training_data.size() > 0) {
-                    training_data.calc_range();
-                    trained = ml_impl.train(training_data, model_params, train_params);
+                    if(train_params.use_normalization) {
+                        training_data.normalize();
+                        trained = ml_impl.train(training_data.get_input_vectors_norm(), training_data.get_output_vectors_norm(), model_params, train_params);
+                    } else {
+                        trained = ml_impl.train(training_data.get_input_vectors(), training_data.get_output_vectors(), model_params, train_params);
+                    }
+                    
                     if(trained) ofLogNotice() << "ml::Main:train - success";
                     else ofLogNotice() << "ml::Main:train - error";
                 } else {

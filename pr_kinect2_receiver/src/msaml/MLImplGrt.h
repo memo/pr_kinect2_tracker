@@ -20,21 +20,21 @@ namespace msa {
     namespace ml {
         
         // Vector type is templated (e.g. could be std::vector<float> or std::vector<double> or any other class that has same API
-        template <typename DataVector, typename T>
-        class MLImplGrt : public MLImplBase<DataVector, T> {
+        template <typename DataVector>
+        class MLImplGrt : public MLImplBase<DataVector> {
         public:
             
             std::string type() const override {
             return "GRT";
         }
         
-        bool train(const TrainingData<DataVector, T>& data, const mlp::ModelParameters& model_params, const mlp::TrainingParameters& train_params) override {
+        bool train(const vector<DataVector>& inputs, const vector<DataVector>& outputs, const mlp::ModelParameters& model_params, const mlp::TrainingParameters& train_params) override {
         destroy();
         
         // create data
         GRT::RegressionData gdata;
         gdata.setInputAndTargetDimensions(model_params.input_dim, model_params.output_dim);
-        for (int i = 0; i < data.size(); i++) gdata.addSample(data.get_input_vectors_norm()[i], data.get_output_vectors_norm()[i]);
+        for (int i = 0; i < outputs.size(); i++) gdata.addSample(inputs[i], outputs[i]);
             
             
             // create ann
@@ -73,7 +73,6 @@ namespace msa {
             void predict(const DataVector& input_vector_norm, DataVector& output_vector_norm) const override {
                 _pipeline.predict(input_vector_norm);
                 output_vector_norm = _pipeline.getRegressionData();
-                //				GRT::VectorDouble ov(_pipeline.getRegressionData());
             }
             
             void destroy() override {
@@ -83,6 +82,6 @@ namespace msa {
         private:
             mutable GRT::GestureRecognitionPipeline _pipeline;  // wrapper for classifier and pre/post processing modules
             };
-            
-            }
-            }
+        
+    }
+}

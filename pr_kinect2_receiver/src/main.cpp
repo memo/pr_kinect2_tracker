@@ -277,7 +277,7 @@ class ofApp : public ofBaseApp {
                     b.addMessage(m);
                 }
             } else {
-                ofLogError() << "App::sendOsc person == NULL";
+//                ofLogError() << "App::sendOsc person == NULL";
             }
             i++;
         }

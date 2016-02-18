@@ -52,7 +52,7 @@ namespace msa {
 			bool load(const std::string path);
 
             // update min/max values
-            void calc_range();
+            void normalize();
             
 			// number of data samples
             int size() const { return (int)_input_vectors.size(); }
@@ -189,8 +189,7 @@ namespace msa {
 			clear();
             DataVector input_vector(input_dim);
             DataVector output_vector(output_dim);
-//			T f;
-            double f;   // HACK?
+            auto f = input_vector[0];   // better way of getting type?
 
 			while (true) {
 
@@ -224,7 +223,7 @@ namespace msa {
         
         
         template <typename DataVector, typename T>
-        void TrainingData<DataVector, T>::calc_range() {
+        void TrainingData<DataVector, T>::normalize() {
             // calculate range for input and output data
             vector_utils::get_range(_input_vectors, _input_min, _input_max);
             vector_utils::get_range(_output_vectors, _output_min, _output_max);
@@ -238,8 +237,8 @@ namespace msa {
 
             
             for(int i=0; i<size(); i++) {
-                vector_utils::normalize(_input_vectors[i], _input_min, _input_max, (T)normalize_min, (T)normalize_max, _input_vectors_norm[i]);
-                vector_utils::normalize(_output_vectors[i], _output_min, _output_max, (T)normalize_min, (T)normalize_max, _output_vectors_norm[i]);
+                vector_utils::normalize(_input_vectors[i], _input_min, _input_max, normalize_min, normalize_max, _input_vectors_norm[i]);
+                vector_utils::normalize(_output_vectors[i], _output_min, _output_max, normalize_min, normalize_max, _output_vectors_norm[i]);
             }
         }
 
