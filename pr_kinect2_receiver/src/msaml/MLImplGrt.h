@@ -51,7 +51,7 @@ namespace msa {
             
             //Set the training settings
             mlp.setMaxNumEpochs(train_params.max_epochs); //max number of epochs (1 epoch is 1 complete iteration of the training data) that are allowed
-            mlp.setMinChange(train_params.desired_error); //min change allowed in training error between any two epochs
+            mlp.setMinChange(train_params.min_delta); //min change allowed in training error between any two epochs
             mlp.setNumRandomTrainingIterations(train_params.num_train_sessions); //number of times the MLP will be trained, each training iteration starts with new random values
             mlp.setUseValidationSet(train_params.use_validation); //sets aside a small portiion of the training data to be used as a validation set to mitigate overfitting
             mlp.setValidationSetSize(train_params.validation_size); //Use 20% of the training data for validation during the training phase

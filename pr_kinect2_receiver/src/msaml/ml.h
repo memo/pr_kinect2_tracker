@@ -32,6 +32,10 @@ namespace pr {
         public:
             // TODO: add noise while recording
             
+            Manager() {
+                init();
+            }
+            
             void init() {
                 ofLogNotice() << "ml::Main:init ";
                 int dim = joints_to_include.size() * 3; // xyz
@@ -51,7 +55,7 @@ namespace pr {
             
             
             void update(vector<Person::Ptr>& persons) {
-                if(!enabled) return;
+                if(!enabled || model_params.input_dim == 0 || model_params.output_dim == 0) return;
                 
                 if(num_hidden_layers != model_params.hidden_dims.size()) {
                     ofLogWarning() << "ml::Main:update - setting hidden_dims size to " << num_hidden_layers;
@@ -71,10 +75,9 @@ namespace pr {
                         } else {
                             ofLogError() << "ml::Main:update record - target person null";
                         }
-                    } else if(do_predict) {
-                        // get prediction
-                        predict(input_vec, output_vec);
+                    } else if(do_predict && predict(input_vec, output_vec)) {   // get prediction
                         
+                        // check enough persons in array
                         if(output_person_id >= persons.size()) {
                             ofLogWarning() << "ml::Main:update predict - not enough persons for output person";
                             persons.resize(output_person_id+1);
@@ -88,6 +91,9 @@ namespace pr {
                             output_person = persons[output_person_id] = make_shared<Person>("ml_output");
                         }
                         
+                        // make purple for easy seeing
+                        output_person->color.set(255, 0, 255);
+                        
                         representation_to_person(output_person, joints_to_include, target_do_local, output_vec);
                     }
                 } else {
@@ -96,12 +102,12 @@ namespace pr {
             }
             
             
-            void predict(const DataVector& input_vector, DataVector& output_vector) {
-                if(!enabled || !trained) return;
+            bool predict(const DataVector& input_vector, DataVector& output_vector) {
+                if(!enabled || !trained) return false;
                 
                 if (input_vector.size() != model_params.input_dim) {
                     ofLogError() << "ml::Main::predict - data dimensions does not match input dimensions: " << model_params.input_dim;
-                    return;
+                    return false;
                 }
                 
                 // if trained, predict output
@@ -118,6 +124,8 @@ namespace pr {
                 
                 // unnormalize output
                 msa::vector_utils::unnormalize(output_vector_norm, training_data.get_output_min_values(), training_data.get_output_max_values(), training_data.normalize_min, training_data.normalize_max, output_vector);
+                
+                return true;
             }
             
             
@@ -180,7 +188,7 @@ namespace pr {
                 if(ImGui::CollapsingHeader("Training Parameters", NULL, true, true)) {
                     ImGui::InputFloat("learning_rate", &train_params.learning_rate, 0.01);
                     ImGui::InputFloat("learning_momentum", &train_params.learning_momentum, 0.01);
-                    ImGui::InputFloat("desired_error", &train_params.desired_error, 0.00001);
+                    ImGui::InputFloat("min_delta", &train_params.min_delta, 0.00001);
                     ImGui::InputInt("max_epochs", &train_params.max_epochs, 100);
                     ImGui::InputInt("epochs_between_reports", &train_params.epochs_between_reports, 10);
                     
@@ -202,6 +210,16 @@ namespace pr {
                 
                 if(ImGui::Button("init", button_size)) init(); ImGui::SameLine();
                 if(ImGui::Button("train", button_size)) train();
+                
+                if(ImGui::Button("save", button_size)) {
+                    ofFileDialogResult fr = ofSystemSaveDialog(str_joints_to_include + ".txt", "Save training data");
+                    if(fr.bSuccess) training_data.save(fr.getPath());
+                }
+                ImGui::SameLine();
+                if(ImGui::Button("load", button_size)) {
+                    ofFileDialogResult fr = ofSystemLoadDialog();
+                    if(fr.bSuccess) training_data.load(fr.getPath());    // TODO: how to match joint into to data :/
+                }
                 
                 
                 if(ImGui::CollapsingHeader("Viz", NULL, true, true)) {
@@ -258,7 +276,7 @@ namespace pr {
                         joints_bools_map["l_hand"] = joints_bools_map["r_hand"] = joints_bools_map["l_foot"] = joints_bools_map["r_foot"] = true;
                     }
                     
-                    
+                    ImGui::Text(str_joints_to_include.c_str());
                     
                     // iterate joint parents (to get names of all joints)
                     int i=0;
@@ -269,14 +287,9 @@ namespace pr {
                     
                     
                     if(rep_changed) {
-                        joints_to_include = update_representation_vec(joints_bools_map);
+                        joints_to_include = update_representation_vec(joints_bools_map, str_joints_to_include);
                         init();
                     }
-                    
-                    // for testing
-                    //                string joint_names = "";
-                    //                for(auto&& joint_name : joints_to_include) joint_names += joint_name + " ";
-                    //                ImGui::Text(joint_names.c_str());
                 }
                 ImGui::End();
             }
@@ -299,13 +312,14 @@ namespace pr {
             // app specific ml stuff
             int input_person_id = 2;            // input person, will be present during training and prediction
             int target_person_id = 1;           // target person, will be 'imagined'
-            int output_person_id = 0;           // slot to write to
+            int output_person_id = 3;           // slot to write to
             bool input_do_local = true;         // whether to do pos relative to waist or not
-            bool target_do_local = true;
+            bool target_do_local = false;
             vector<string> joints_to_include;   // vector of included joints
+            string str_joints_to_include;       // useful for debugging and data filenames
             
             
-            static vector<string> update_representation_vec(const map<string, bool>& joints_bools_map) {
+            static vector<string> update_representation_vec(const map<string, bool>& joints_bools_map, string& str_joints_to_include) {
                 ofLogNotice() << "ml::Main:update_representation_vec";
                 vector<string> joints_to_include;
                 // iterate joints to include
@@ -316,6 +330,10 @@ namespace pr {
                         ofLogNotice() << "  " << kv.first;
                     }
                 }
+
+                str_joints_to_include = "";
+                for(auto&& joint_name : joints_to_include) str_joints_to_include += joint_name + " ";
+
                 return joints_to_include;
             }
             

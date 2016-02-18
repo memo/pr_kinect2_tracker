@@ -45,7 +45,7 @@ namespace msa {
             struct TrainingParameters {
                 float learning_rate = 0.1f;
                 float learning_momentum = 0.9f;
-                float desired_error = 1.0e-5f;
+                float min_delta = 1.0e-5f;
                 int max_epochs = 10000;
                 int epochs_between_reports = 100;
 //                float activation_steepness_hidden = 0.5f;
