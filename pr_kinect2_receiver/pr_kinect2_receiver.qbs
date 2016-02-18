@@ -13,6 +13,7 @@ Project{
 
         files: [
             "src/*",
+            "src/*/*"
         ]
 
         of.addons: [
