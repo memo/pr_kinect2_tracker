@@ -9,7 +9,8 @@
 #define kPersonAvg      0
 #define kPersonLeft     1
 #define kPersonRight    2
-#define kPersonCount    3
+#define kPersonML       3
+#define kPersonCount    4
 
 #define kXmlFilename    "settings.xml"
 

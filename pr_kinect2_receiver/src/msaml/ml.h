@@ -13,20 +13,19 @@
 #include "VectorUtils.h"
 
 #include "TrainingData.h"
-//#include "MLImplFann.h"
+#include "MLImplFann.h"
 #include "MLImplGrt.h"
 
 namespace pr {
     namespace ml {
         
-        //        typedef vector<fann_type> DataVector;
+                typedef GRT::Float DataType;
+                typedef GRT::VectorFloat DataVector;
+                typedef msa::ml::MLImplGrt<DataVector, DataType> MLImpl;
         
-        typedef GRT::Float DataType;
-        typedef GRT::VectorFloat DataVector;
-        //        typedef float DataType;
-        //        typedef vector<DataType> DataVector;
-        //        typedef msa::ml::Model<DataVector, DataType> Model;
-        typedef msa::ml::MLImplGrt<DataVector, DataType> MLImpl;
+//        typedef fann_type DataType;
+//        typedef vector<DataType> DataVector;
+//        typedef msa::ml::MLImplFann<DataVector, DataType> MLImpl;
         
         class Manager {
         public:
@@ -193,7 +192,7 @@ namespace pr {
                 if(ImGui::CollapsingHeader("Training Parameters", NULL, true, true)) {
                     ImGui::InputFloat("learning_rate", &train_params.learning_rate, 0.01);
                     ImGui::InputFloat("learning_momentum", &train_params.learning_momentum, 0.01);
-                    ImGui::InputFloat("min_delta", &train_params.min_delta, 0.00001);
+                    ImGui::InputFloat("min_delta", &train_params.min_delta, 0.000001);
                     ImGui::InputInt("max_epochs", &train_params.max_epochs, 100);
                     ImGui::InputInt("epochs_between_reports", &train_params.epochs_between_reports, 10);
                     
@@ -336,10 +335,10 @@ namespace pr {
                         ofLogNotice() << "  " << kv.first;
                     }
                 }
-
+                
                 str_joints_to_include = "";
                 for(auto&& joint_name : joints_to_include) str_joints_to_include += joint_name + " ";
-
+                
                 return joints_to_include;
             }
             

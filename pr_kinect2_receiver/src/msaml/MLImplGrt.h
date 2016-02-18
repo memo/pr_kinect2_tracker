@@ -32,8 +32,9 @@ namespace msa {
         destroy();
         
         // create data
-        _gdata.setInputAndTargetDimensions(model_params.input_dim, model_params.output_dim);
-        for (int i = 0; i < data.size(); i++) _gdata.addSample(data.get_input_vectors_norm()[i], data.get_output_vectors_norm()[i]);
+        GRT::RegressionData gdata;
+        gdata.setInputAndTargetDimensions(model_params.input_dim, model_params.output_dim);
+        for (int i = 0; i < data.size(); i++) gdata.addSample(data.get_input_vectors_norm()[i], data.get_output_vectors_norm()[i]);
             
             
             // create ann
@@ -41,7 +42,7 @@ namespace msa {
         
         // TODO: use these from params struct
         mlp.setInputLayerActivationFunction(GRT::Neuron::LINEAR);
-        mlp.setHiddenLayerActivationFunction(GRT::Neuron::BIPOLAR_SIGMOID);// BIPOLAR_SIGMOID);
+        mlp.setHiddenLayerActivationFunction(GRT::Neuron::BIPOLAR_SIGMOID);
         mlp.setOutputLayerActivationFunction(GRT::Neuron::BIPOLAR_SIGMOID);
         
         if(model_params.hidden_dims.size() > 1) {
@@ -63,7 +64,7 @@ namespace msa {
             
             
             // train
-            _pipeline.train(_gdata);
+            _pipeline.train(gdata);
             
             return true;
             }
@@ -81,7 +82,6 @@ namespace msa {
             
         private:
             mutable GRT::GestureRecognitionPipeline _pipeline;  // wrapper for classifier and pre/post processing modules
-            GRT::RegressionData _gdata;
             };
             
             }
