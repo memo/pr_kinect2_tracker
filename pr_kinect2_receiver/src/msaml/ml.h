@@ -63,7 +63,10 @@ namespace pr {
                 }
                 
                 Person::Ptr input_person = persons[input_person_id];
-                if(input_person) input_vec = person_to_representation(input_person, joints_to_include, input_do_local);
+                if(input_person) {
+                    input_vec = person_to_representation(input_person, joints_to_include, input_do_local);
+                    if(add_input_noise > 0) for(auto&& d : input_vec) d += ofRandomf() * add_input_noise;
+                }
                 
                 Person::Ptr target_person = persons[target_person_id];
                 if(target_person) target_vec = person_to_representation(target_person, joints_to_include, target_do_local);
@@ -173,6 +176,8 @@ namespace pr {
                 if(ImGui::Checkbox("Predict", &do_predict)) do_record = false;
                 ImGui::InputInt("output_person_id", &output_person_id);
                 ImGui::Columns(1);
+                
+                ImGui::SliderFloat("add_input_noise", &add_input_noise, 0, 1);
                 
                 
                 if(ImGui::CollapsingHeader("Model Parameters", NULL, true, true)) {
@@ -315,6 +320,7 @@ namespace pr {
             int output_person_id = 3;           // slot to write to
             bool input_do_local = true;         // whether to do pos relative to waist or not
             bool target_do_local = false;
+            float add_input_noise = 0;                // add noise to input data
             vector<string> joints_to_include;   // vector of included joints
             string str_joints_to_include;       // useful for debugging and data filenames
             
