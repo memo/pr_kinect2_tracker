@@ -287,7 +287,10 @@ class ofApp : public ofBaseApp {
 
     //--------------------------------------------------------------
     void draw() {
+        if(ImGui::IsPosHoveringAnyWindow(ofVec2f(ofGetMouseX(), ofGetMouseY()))) cam.disableMouseInput();
+        else cam.enableMouseInput();
 
+        
         cam.begin();
 
         if(display.show_floor) {
