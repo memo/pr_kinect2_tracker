@@ -264,7 +264,6 @@
 		F0D7631D1C749C6C00929E29 /* MLImplBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLImplBase.h; sourceTree = "<group>"; };
 		F0D7631E1C749C6C00929E29 /* MLImplFann.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLImplFann.h; sourceTree = "<group>"; };
 		F0D7631F1C749C6C00929E29 /* MLImplGrt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLImplGrt.h; sourceTree = "<group>"; };
-		F0D763201C749C6C00929E29 /* Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Model.h; sourceTree = "<group>"; };
 		F0D763211C749C6C00929E29 /* TrainingData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrainingData.h; sourceTree = "<group>"; };
 		F0D763221C749C6C00929E29 /* VectorUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorUtils.h; sourceTree = "<group>"; };
 		F0D763261C749C7600929E29 /* AdaBoost.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdaBoost.cpp; sourceTree = "<group>"; };
@@ -776,7 +775,6 @@
 				F0D7631D1C749C6C00929E29 /* MLImplBase.h */,
 				F0D7631E1C749C6C00929E29 /* MLImplFann.h */,
 				F0D7631F1C749C6C00929E29 /* MLImplGrt.h */,
-				F0D763201C749C6C00929E29 /* Model.h */,
 				F0D763211C749C6C00929E29 /* TrainingData.h */,
 				F0D763221C749C6C00929E29 /* VectorUtils.h */,
 			);
