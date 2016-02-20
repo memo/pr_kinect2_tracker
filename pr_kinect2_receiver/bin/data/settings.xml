@@ -1,14 +1,15 @@
 <Settings>
 	<Display>
+		<do_avg_person>0</do_avg_person>
 		<show_floor>1</show_floor>
 		<show_kinect_floors>0</show_kinect_floors>
 		<show_received_persons>0</show_received_persons>
 		<show_final_persons>1</show_final_persons>
-		<show_avg_person>0</show_avg_person>
+		<show_avg_person>1</show_avg_person>
 		<joint_radius>0.028</joint_radius>
 		<show_target_pos>0</show_target_pos>
 		<show_springy_pos>0</show_springy_pos>
-		<show_vel>0</show_vel>
+		<show_vel>1</show_vel>
 		<vel_mult>1</vel_mult>
 	</Display>
 	<Receivers>
