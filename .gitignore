@@ -135,12 +135,6 @@ Desktop.ini
 # Tensorflow specific
 build*
 *.so
-*.ini
-*/bin/*.
-*/bin/example-*
-*/bin/*/training_data/*
 *.ckpt
-*.pb
-*.data
 checkpoint
 *.exp
