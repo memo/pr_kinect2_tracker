@@ -48,9 +48,10 @@ void Receiver::parseOsc() {
 
             // whether it's new user or existing user, update joint details
 
-
             // reset alive counter
             person->alive_counter = 0;
+            
+            person->receiver_id = _index;
 
             // read from osc:
 			string jointName = splitAddress[3];

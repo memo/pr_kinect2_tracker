@@ -23,6 +23,8 @@ class ofApp : public ofBaseApp {
     struct {
         
         bool do_avg_person = false;
+        bool do_delete_in_thresh = false;
+        float dist_thresh = 0.2;
         
         // display params
         struct {
@@ -111,6 +113,8 @@ class ofApp : public ofBaseApp {
         
         xml.setTo("//Settings/Display");
         params.do_avg_person = xml.getBoolValue("do_avg_person");
+        params.do_delete_in_thresh = xml.getBoolValue("do_delete_in_thresh");
+        params.dist_thresh = xml.getFloatValue("dist_thresh");
         params.display.show_floor = xml.getBoolValue("show_floor");
         params.display.show_kinect_floors = xml.getBoolValue("show_kinect_floors");
         //		params.display.floor_size = xml.getFloatValue("floor_size");
@@ -135,6 +139,8 @@ class ofApp : public ofBaseApp {
         xml.setTo("Display");
         
         xml.addValue("do_avg_person", ofToString(params.do_avg_person));
+        xml.addValue("do_delete_in_thresh", ofToString(params.do_delete_in_thresh));
+        xml.addValue("dist_thresh", ofToString(params.dist_thresh));
         xml.addValue("show_floor", ofToString(params.display.show_floor));
         xml.addValue("show_kinect_floors", ofToString(params.display.show_kinect_floors));
         //		xml.addValue("floor_size", ofToString(params.display.floor_size));
@@ -185,8 +191,59 @@ class ofApp : public ofBaseApp {
         
         // if at least one person
         if(persons_global_all.size() > 0) {
-            // sort global list
-            std::sort(persons_global_all.begin(), persons_global_all.end(), pr::Person::compare);
+            // go through all persons, check if L2 dist is below a threshold, if so, use the one that is more on axis
+            // only do for persons from different receivers.
+            // iterate all people
+            for(int i=0; i<persons_global_all.size(); i++) {
+                auto& p1 = persons_global_all[i];
+                
+                // if not null, and from a receiver
+                if(p1 && ofInRange(p1->receiver_id, 1, receivers.size())) {
+                    
+                    // iterate all other people
+                    for(int j=i+1; j<persons_global_all.size(); j++) {
+                        auto& p2 = persons_global_all[j];
+                        
+                        // if not null, from a receiver, and not from same receiver...
+                        if(p2 && ofInRange(p2->receiver_id, 1, receivers.size()) && p1 != p2 && p1->receiver_id != p2->receiver_id) {
+                            
+                            // check distance threshold
+                            float dist = pr::Person::dist(p1, p2);
+                            if(dist < params.dist_thresh) {
+                                //                                p1->color.set(0, 0, 0);
+                                //                                p2->color.set(0, 0, 0);
+                                
+                                // choose depending on how onaxis each person is
+                                float p1_score = pr::Person::on_axis(p1, receivers[p1->receiver_id-1]->getNode());
+                                float p2_score = pr::Person::on_axis(p2, receivers[p2->receiver_id-1]->getNode());
+                                if(p1_score > p2_score) {
+                                    if(params.do_delete_in_thresh) p2 = nullptr;
+                                    else p2->color.set(100, 100, 100);
+                                } else {
+                                    if(params.do_delete_in_thresh) {
+                                        p1 = nullptr;
+                                        break;
+                                    } else p1->color.set(100, 100, 100);
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+
+                // remove null persons
+                //std::remove(persons_global_all.begin(), persons_global_all.end(), pr::Person::Ptr()); // why doesn't this work?
+                for(auto it = persons_global_all.begin(); it != persons_global_all.end();) {
+                    if(!*it) {
+                        it = persons_global_all.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+                
+                // sort global list
+                std::sort(persons_global_all.begin(), persons_global_all.end(), pr::Person::compare);
+            }
             
             if(persons_global_final.size() != kPersonCount) {
                 ofLogWarning() << "App::update persons_global_final.size() == " << persons_global_final.size() << ". Allocating";
@@ -316,9 +373,13 @@ class ofApp : public ofBaseApp {
             ofPopStyle();
         }
         
+        
         if(params.display.show_received_persons) {
             for(auto&& person: persons_global_all) {
-                if(person) person->draw(params.display.joint_radius, params.display.show_target_pos, params.display.show_springy_pos, params.display.show_vel, params.display.vel_mult);
+                if(person) {
+                    person->color.a = 50;
+                    pr::Person::draw(person, params.display.joint_radius, params.display.show_target_pos, params.display.show_springy_pos, params.display.show_vel, params.display.vel_mult);
+                }
             }
         }
         
@@ -326,7 +387,10 @@ class ofApp : public ofBaseApp {
             for(int i=0; i<persons_global_final.size(); i++) {
                 if(params.display.show_avg_person || i != kPersonAvg) {
                     auto person = persons_global_final[i];
-                    if(person) person->draw(params.display.joint_radius, params.display.show_target_pos, params.display.show_springy_pos, params.display.show_vel, params.display.vel_mult);
+                    if(person) {
+                        person->color.a = 255;
+                        pr::Person::draw(person, params.display.joint_radius, params.display.show_target_pos, params.display.show_springy_pos, params.display.show_vel, params.display.vel_mult);
+                    }
                 }
             }
         }
@@ -378,11 +442,13 @@ class ofApp : public ofBaseApp {
         
         if(ImGui::CollapsingHeader("Global Params", NULL, true, true)) {
             ImGui::Checkbox("do_avg_person", &params.do_avg_person);
-            ImGui::DragFloat("pos smoothing", &pr::Receiver::pos_smoothing, 0.01, 0, 1);
-            ImGui::DragFloat("vel smoothing", &pr::Receiver::vel_smoothing, 0.01, 0, 1);
-            ImGui::DragFloat("spring strength", &pr::Receiver::spring_strength, 0.01, 0, 1);
-            ImGui::DragFloat("spring damping", &pr::Receiver::spring_damping, 0.01, 0, 1);
-            ImGui::DragInt("kill frame count", &pr::Receiver::kill_frame_count, 1);
+            ImGui::Checkbox("do_delete_in_thresh", &params.do_delete_in_thresh);
+            ImGui::DragFloat("dist_thresh", &params.dist_thresh, 0.01, 0, 2);
+            ImGui::DragFloat("pos_smoothing", &pr::Receiver::pos_smoothing, 0.01, 0, 1);
+            ImGui::DragFloat("vel_smoothing", &pr::Receiver::vel_smoothing, 0.01, 0, 1);
+            ImGui::DragFloat("spring_strength", &pr::Receiver::spring_strength, 0.01, 0, 1);
+            ImGui::DragFloat("spring_damping", &pr::Receiver::spring_damping, 0.01, 0, 1);
+            ImGui::DragInt("kill_frame_count", &pr::Receiver::kill_frame_count, 1);
         }
         
         for(auto&& receiver : receivers) {

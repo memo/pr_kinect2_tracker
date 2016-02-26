@@ -34,10 +34,13 @@ struct Person {
 	typedef shared_ptr<Person> Ptr;
     
     // useful for debugging
-    string name;
+    string name = "Unknown person";
 
     // keep alive for XXX frames
     int alive_counter = 0;
+    
+    // which receiver this came from
+    int receiver_id = -1;
 
     // draw color of this person (gonna color persons from kinect 1 red, kinect 2 green, kinect 3 blue etc)
     ofColor color = ofColor::yellow;
@@ -45,6 +48,16 @@ struct Person {
     // joint information
     map<string, JointInfo> joints;
     
+    // how 'on axis' skeleton is (1: center, 0: towards edge)
+//    float on_axis_amount = 1.0f;
+    
+    
+    Person(string name):name(name) {
+        for(const auto& joint_name : joint_names) joints[joint_name] = JointInfo();
+    }
+    
+    
+
     // static joint info
     static vector<string> joint_names;
     static map<string, string> joint_parents;
@@ -67,46 +80,61 @@ struct Person {
         }
     }
     
-    
-    Person(string name):name(name) {
-        for(const auto& joint_name : joint_names) joints[joint_name] = JointInfo();
-    }
-
-    
     // other info? hand states, lean, restrictedness etc
 
-    /*
+    
     // diffs to another person. useful for detecting if two people from different kinects are the same person or not
     // ignore for now
 
-    // L1 norm of diffs to another person
-    float dist(Ptr other) {
+    // mean diff of joints
+    static float dist(const Ptr p1, const Ptr p2) {
+        if(joint_names.empty() || !p1 || !p2) return std::numeric_limits<float>::max();
         float s = 0;
-        for(auto&& j : joints) s += (j.second.pos.current - other->joints[j.first].pos.current).length();
+        for(auto&& j : joint_names) s += (p1->joints[j].pos.current - p2->joints[j].pos.current).length();
+        s /= joint_names.size();
         return s;
     }
 
 
-    // L2 norm of diffs to another person
-    float dist2(Ptr other) {
+    // mean diff squared of joints
+    static float dist2(const Ptr p1, const Ptr p2) {
+        if(joint_names.empty() || !p1 || !p2) return std::numeric_limits<float>::max();
         float s = 0;
-        for(auto&& j : joints) s += (j.second.pos.current - other->joints[j.first].pos.current).lengthSquared();
-        return sqrt(s);
+        for(auto&& j : joint_names) s += (p1->joints[j].pos.current - p2->joints[j].pos.current).lengthSquared();
+        s /= joint_names.size();
+        return s;
     }
-*/
+
 
     // used for sorting persons left to right using waist position
     static bool compare(Ptr a, Ptr b) { return a->joints["waist"].pos.current.x < b->joints["waist"].pos.current.x; }
-
+    
+    
+    // calculate how aligned person is to this axis
+    static float on_axis(Ptr p, const ofNode& node) {
+        if(!p || p->joints.empty()) return 1;
+        ofVec3f avg_pos(0, 0, 0);
+        for(auto&& j : p->joints) avg_pos += j.second.pos.current;
+        avg_pos /= p->joints.size();
+        
+        // node to avg_pos
+        ofVec3f dir(node.getGlobalPosition() - avg_pos);
+        dir.normalize();
+        
+        return dir.dot(node.getLookAtDir());
+        
+    }
+    
     
     // draw person
-    void draw(float joint_radius, bool show_target_pos, bool show_springy_pos, bool show_vel, float vel_mult) {
-
+    static void draw(Ptr p, float joint_radius, bool show_target_pos, bool show_springy_pos, bool show_vel, float vel_mult) {
+        if(!p) return;
+        
        // iterate joints
-       for(auto&& jkv : joints) {
+       for(auto&& jkv : p->joints) {
            JointInfo& joint = jkv.second;
 
-           ofSetColor(color);
+           ofSetColor(p->color);
 
            // draw limb
            ofDrawLine(joint.pos.current, joint.pos.current + joint.vec);
@@ -118,7 +146,7 @@ struct Person {
            if(show_springy_pos) ofDrawSphere(joint.springy_pos, joint_radius);
 
            //  draw joint (Faded if showing target or springypos)
-           ofSetColor(color, show_target_pos || show_springy_pos ? 50 : 255);
+           ofSetColor(p->color);//, show_target_pos || show_springy_pos ? 50 : 255);
            ofDrawSphere(joint.pos.current, joint_radius);
 
 
