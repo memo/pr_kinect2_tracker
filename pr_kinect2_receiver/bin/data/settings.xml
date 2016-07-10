@@ -17,8 +17,8 @@
 	<Receivers>
 		<pos_smoothing>0.5</pos_smoothing>
 		<vel_smoothing>0.97</vel_smoothing>
-		<spring_strength>0.201</spring_strength>
-		<spring_damping>0.346</spring_damping>
+		<spring_strength>0.5</spring_strength>
+		<spring_damping>0.1</spring_damping>
 		<kill_frame_count>10</kill_frame_count>
 		<receiver>
 			<port>8001</port>
