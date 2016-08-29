@@ -3,7 +3,7 @@
   <bDrawDebug>0</bDrawDebug>
   <displayTextAlpha>255</displayTextAlpha>
   <displayVideoAlpha>255</displayVideoAlpha>
-  <displayDepthAlpha>100</displayDepthAlpha>  
+  <displayDepthAlpha>50</displayDepthAlpha>
   <depthGain>10</depthGain>
   <bDepthInvert>1</bDepthInvert>
   <bDrawFloor>1</bDrawFloor>
